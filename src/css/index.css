@@ -1,0 +1,13 @@
+@font-face {
+    font-family: corma;
+    src: url('./fonts/corma.ttf');
+}
+
+@font-face {
+    font-family: miles;
+    src: url('./fonts/miles.otf');
+}
+
+body {
+    margin: 0;
+}
