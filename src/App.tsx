@@ -8,6 +8,8 @@ import Logo, {LogoAlt} from './components/Logo'
 import AudioCard, { Artist, Track } from './components/AudioCard'
 import SearchInput from './components/SearchInput'
 
+import githubSvg from './svgs/github.svg'
+
 
 import axios from 'axios'
 import { BASE_URL } from './config'
@@ -33,6 +35,8 @@ const Header = styled.div`
 
     justify-content: center;
 
+    padding-bottom: 10px;
+    
     input {
       width: 100%;
       margin-bottom: 10px;
@@ -74,6 +78,12 @@ const Content = styled.div`
   @media only screen and (max-width: 600px) {
     margin-top: 150px;
   }
+`
+
+const HeaderIcon = styled.img`
+  width: 20px;
+  height: 20px;
+  filter: invert(1);
 `
 
 const useTracks = (url) => {
@@ -137,7 +147,7 @@ const App = () => {
         <SearchInput onSearch={onSearch} />
       </Header>
 
-      <Content>
+      <Content playerOpen={!!playingTrackId}>
         <Routes>
           <Route path="/" element={<Dashboard tracks={tracks} handlePlayTrack={handlePlayTrack} />} />
           <Route path="/artist/:artistId" element={<UserPage handlePlayTrack={handlePlayTrack} />} />

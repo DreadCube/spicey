@@ -1,7 +1,9 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import {Link, Navigate, useNavigate} from 'react-router-dom'
+import {useNavigate} from 'react-router-dom'
+
+import placeholderImg from '../icons/apple-touch-icon-180x180.png'
 
 const Card = styled.div`
   width: 150px;
@@ -78,6 +80,9 @@ const PlayButton = styled.img`
 const AudioCard = ({src, track, artist, id, onClick, artistId}) => {
   const navigate = useNavigate()
 
+  const coverRef = React.useRef<HTMLImageElement>()
+  const [coverLoaded, setCoverLoaded] = React.useState(false)
+
   const handleClick = React.useCallback(() => {
     onClick(id)
   }, [id])
@@ -86,10 +91,27 @@ const AudioCard = ({src, track, artist, id, onClick, artistId}) => {
     navigate(`/artist/${artistId}`)
   }, [artistId])
 
+  React.useEffect(() => {
+    setCoverLoaded(false)
+
+    coverRef.current = new Image()
+    coverRef.current.src = src
+
+    const handleCoverLoaded = () => {
+      setCoverLoaded(true)
+    }
+
+    coverRef.current.addEventListener('load', handleCoverLoaded)
+
+    return () => {
+      coverRef.current.removeEventListener('load', handleCoverLoaded)
+    }
+  }, [src])
+
   return (
     <Card>
       <CoverWrapper onClick={handleClick}>
-        <Cover src={src} />
+        <Cover src={!coverLoaded ? placeholderImg : src} />
         <PlayButton className="playButton" src="https://www.svgrepo.com/show/13672/play-button.svg" />
       </CoverWrapper>
       <TextWrapper>

@@ -6,7 +6,7 @@ import axios from 'axios'
 
 import { Artist, Track } from './AudioCard'
 
-import speakerSvg from '../speaker.svg'
+import speakerSvg from '../svgs/speaker.svg'
 import { BASE_URL } from '../config'
 
 let context
@@ -80,10 +80,11 @@ const Player = ({trackId, tracks = []}) => {
   
   
       audioRef.current.addEventListener('timeupdate', () => {
-        const duration = audioRef.current.duration || 0
-        const currentTime = audioRef.current.currentTime || 0
+        const duration = !isNaN(audioRef.current.duration) ? audioRef.current.duration : 0
+        const currentTime = !isNaN(audioRef.current.currentTime) ? audioRef.current.currentTime : 0
   
-        setRangeValue(Math.round((100 / duration) * currentTime))
+        const newRangeValue = Math.round((100 / duration) * currentTime)
+        setRangeValue(!isNaN(newRangeValue) ? newRangeValue : 0)
   
       })
 
@@ -159,14 +160,19 @@ const Player = ({trackId, tracks = []}) => {
       renderFrame();
     }, [trackId])
   
+
+    const handleVolumeBlur = React.useCallback(() => {
+      setShowVolume(false)
+    }, [])
+
   
     if (!trackId) {
       return null
     }
+
   
     return (
       <PlayerContainer>
-
         <canvas ref={canvasRef} style={{position: 'fixed', bottom: 0, left: 0, width: '100vw', height: 50, zIndex: -1}} />
         <ContentContainer>
           <Cover src={cover} />
@@ -176,7 +182,7 @@ const Player = ({trackId, tracks = []}) => {
           </DescriptionContainer>
             <Range type="range" value={RangeValue} onChange={handleRangeChange} />
             <SpeakerContainer>
-              <VolumeRange showVolume={showVolume} type="range" min={0} max={1} step={0.1} value={volume} onChange={handleVolumeChange} />
+              <VolumeRange onBlur={handleVolumeBlur} showVolume={showVolume} type="range" min={0} max={1} step={0.1} value={volume} onChange={handleVolumeChange} />
               <Speaker src={speakerSvg} onClick={handleShowVolume} />
             </SpeakerContainer>
         </ContentContainer>
@@ -216,6 +222,8 @@ const DescriptionContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   width: 33%;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 5px;
 `
 
 const Range = styled.input`
@@ -333,6 +341,8 @@ const Speaker = styled.img`
   height: 20px;
   cursor: pointer;
   margin-left: 20px;
+  filter: invert(1);
+  margin-top: 5px;
 `
 
 const VolumeRange = styled(Range)`
