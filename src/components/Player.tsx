@@ -7,6 +7,9 @@ import axios from 'axios'
 import { Artist, Track } from './AudioCard'
 
 import speakerSvg from '../svgs/speaker.svg'
+import playSvg from '../svgs/play.svg'
+import pauseSvg from '../svgs/pause.svg'
+
 import { BASE_URL } from '../config'
 
 let context
@@ -25,6 +28,8 @@ const Player = ({trackId, tracks = []}) => {
     const [cover, setCover]  = React.useState('')
   
     const [RangeValue, setRangeValue] = React.useState(0)
+
+    const [isPlaying, setIsPlaying] = React.useState(false)
   
   
     const [volume, setVolume] = React.useState(1)
@@ -74,11 +79,7 @@ const Player = ({trackId, tracks = []}) => {
       if (!audioRef.current) {
         return
       }
-      audioRef.current.pause()
-      audioRef.current.load()
-      audioRef.current.play()
-  
-  
+
       audioRef.current.addEventListener('timeupdate', () => {
         const duration = !isNaN(audioRef.current.duration) ? audioRef.current.duration : 0
         const currentTime = !isNaN(audioRef.current.currentTime) ? audioRef.current.currentTime : 0
@@ -87,6 +88,22 @@ const Player = ({trackId, tracks = []}) => {
         setRangeValue(!isNaN(newRangeValue) ? newRangeValue : 0)
   
       })
+
+      audioRef.current.addEventListener('play', () => {
+        setIsPlaying(true)
+      })
+
+      audioRef.current.addEventListener('pause', () => {
+        setIsPlaying(false)
+      })
+
+      audioRef.current.pause()
+      audioRef.current.load()
+      audioRef.current.play()
+  
+
+  
+
 
     }, [trackId])
 
@@ -165,6 +182,14 @@ const Player = ({trackId, tracks = []}) => {
       setShowVolume(false)
     }, [])
 
+    const handleTogglePlay = React.useCallback(() => {
+      if (audioRef.current.paused) {
+        audioRef.current.play()
+        return
+      }
+      audioRef.current.pause()
+    }, [])
+
   
     if (!trackId) {
       return null
@@ -180,13 +205,13 @@ const Player = ({trackId, tracks = []}) => {
             <Track>{track}</Track>
             <Artist onClick={handleArtistClick}>{artist}</Artist>
           </DescriptionContainer>
+            <PlayControls src={isPlaying ? pauseSvg : playSvg} onClick={handleTogglePlay} />
             <Range type="range" value={RangeValue} onChange={handleRangeChange} />
             <SpeakerContainer>
               <VolumeRange onBlur={handleVolumeBlur} showVolume={showVolume} type="range" min={0} max={1} step={0.1} value={volume} onChange={handleVolumeChange} />
               <Speaker src={speakerSvg} onClick={handleShowVolume} />
             </SpeakerContainer>
         </ContentContainer>
-  
         <audio crossOrigin="anonymous" style={{display: 'none'}} ref={audioRef}>
           <source src={stream} type="audio/ogg" />
           <source src={stream} type="audio/mp3" />
@@ -360,4 +385,12 @@ const Cover = styled.img`
   max-height: 75%;
   margin-right: 10px;
   box-shadow: 0 0 5px 0px white;
+`
+
+const PlayControls = styled.img`
+  width: 15px;
+  height: 15px;
+  filter: invert(1);
+  margin-right: 10px;
+  cursor: pointer;
 `
