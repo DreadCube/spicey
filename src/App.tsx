@@ -126,6 +126,7 @@ const App = () => {
   const [search, setSearch] = React.useState('')
   const {tracks} = useTracks(getTrackUrl(search))
   const [playingTrackId, setPlayingTrackId] = React.useState(null)
+  const [playlist, setPlaylist] = React.useState([])
 
   const navigate = useNavigate()
 
@@ -135,8 +136,25 @@ const App = () => {
   }
 
   const handlePlayTrack = React.useCallback((trackId) => {
+    const index = tracks.findIndex(e => e.id === trackId)
+
+    const prevTracks = tracks.slice(0, index)
+    const nextTracks = tracks.slice(index)
+
+    const newPlaylist = [
+      ...nextTracks,
+      ...prevTracks
+    ]
+
+    setPlaylist(newPlaylist)
+
+  }, [tracks])
+
+  const onPlaybackTrack = React.useCallback(trackId => {
     setPlayingTrackId(trackId)
   }, [])
+
+
 
   return (
     <Wrapper>
@@ -147,18 +165,18 @@ const App = () => {
         <SearchInput onSearch={onSearch} />
       </Header>
 
-      <Content playerOpen={!!playingTrackId}>
+      <Content>
         <Routes>
-          <Route path="/" element={<Dashboard tracks={tracks} handlePlayTrack={handlePlayTrack} />} />
-          <Route path="/artist/:artistId" element={<UserPage handlePlayTrack={handlePlayTrack} />} />
+          <Route path="/" element={<Dashboard playingTrackId={playingTrackId} tracks={tracks} handlePlayTrack={handlePlayTrack} />} />
+          <Route path="/artist/:artistId" element={<UserPage playingTrackId={playingTrackId} handlePlayTrack={handlePlayTrack} />} />
         </Routes>
       </Content>
-      <Player trackId={playingTrackId} tracks={tracks} />
+      <Player playlist={playlist} onPlaybackTrack={onPlaybackTrack} />
     </Wrapper>
   )
 }
 
-const Dashboard = ({tracks, handlePlayTrack}) => {
+const Dashboard = ({tracks, handlePlayTrack, playingTrackId}) => {
   return (
     <TracksWrapper>
       {tracks.map(track => (
@@ -170,6 +188,7 @@ const Dashboard = ({tracks, handlePlayTrack}) => {
           track={track.track} 
           artist={track.artist}
           artistId={track.artistId}
+          isActive={playingTrackId === track.id}
           />
       ))}
     </TracksWrapper>
@@ -190,7 +209,7 @@ const Cover = styled.div`
   min-height: calc(100vh - 150px);
 `
 
-const UserPage = ({handlePlayTrack}) => {
+const UserPage = ({handlePlayTrack, playingTrackId}) => {
   const {artistId} = useParams()
 
   const [cover, setCover] = React.useState('')
@@ -218,6 +237,7 @@ const UserPage = ({handlePlayTrack}) => {
             track={track.track} 
             artist={track.artist}
             artistId={track.artistId}
+            isActive={playingTrackId === track.id}
           />
         ))}
       </TracksWrapper>

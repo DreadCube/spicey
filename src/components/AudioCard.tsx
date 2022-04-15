@@ -17,6 +17,7 @@ const Card = styled.div`
   align-items: center;
   justify-content: space-between;
   margin: 10px;
+  ${({isActive}) => isActive ? 'box-shadow: 0px 0px 10px 1px cyan' : ''}
 `
 
 const Cover = styled.img`
@@ -77,7 +78,7 @@ const PlayButton = styled.img`
   opacity: 0.2;
 `
 
-const AudioCard = ({src, track, artist, id, onClick, artistId}) => {
+const AudioCard = ({src, track, artist, id, onClick, artistId, isActive}) => {
   const navigate = useNavigate()
 
   const coverRef = React.useRef<HTMLImageElement>()
@@ -109,7 +110,7 @@ const AudioCard = ({src, track, artist, id, onClick, artistId}) => {
   }, [src])
 
   return (
-    <Card>
+    <Card isActive={isActive}>
       <CoverWrapper onClick={handleClick}>
         <Cover src={!coverLoaded ? placeholderImg : src} />
         <PlayButton className="playButton" src="https://www.svgrepo.com/show/13672/play-button.svg" />

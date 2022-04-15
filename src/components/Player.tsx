@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
@@ -16,11 +16,22 @@ let context
 let analyser
 let src
 
-const Player = ({trackId, tracks = []}) => {
+const Player = ({playlist = [], onPlaybackTrack}) => {
     const navigate = useNavigate()
 
+    const [currentTrackId, setCurrentTrackId] = React.useState(null)
+    const [activePlaylist, setActivePlaylist] = React.useState([])
+
+    useEffect(() => {
+      if (!playlist.length) {
+        return
+      }
+      setActivePlaylist(playlist)
+      setCurrentTrackId(playlist[0].id)
+    }, [playlist])
+
     const [stream, setStream] = React.useState(null)
-    
+
     const [track, setTrack] = React.useState('')
     const [artist, setArtist] = React.useState('')
     const [artistId, setArtistId] = React.useState('')
@@ -31,21 +42,41 @@ const Player = ({trackId, tracks = []}) => {
 
     const [isPlaying, setIsPlaying] = React.useState(false)
   
-  
     const [volume, setVolume] = React.useState(1)
     const [showVolume, setShowVolume] = React.useState(false)
   
     const audioRef = React.useRef<HTMLAudioElement>()
     const canvasRef = React.useRef<HTMLCanvasElement>()
   
+    const getNextTrackId = () => {
+      const index = activePlaylist.findIndex(e => e.id === currentTrackId)
+
+      const nextTrackId = activePlaylist[index + 1] 
+        ? activePlaylist[index + 1].id 
+        : activePlaylist[0].id
+
+      return nextTrackId
+    }
+
     const loadTrackInformation = async trackId => {
-      const res = await axios.get(`${BASE_URL}/v1/tracks/${trackId}?app_name=SPICEY`)
+      // Only here to check, if the stream is actually reachable
+      axios.get(`${BASE_URL}/v1/tracks/${currentTrackId}/stream?app_name=SPICEY`)
+        .catch(() => {
+          // If not, load the next track
+          setCurrentTrackId(getNextTrackId())
+        })
+
+      try {
+        const res = await axios.get(`${BASE_URL}/v1/tracks/${trackId}?app_name=SPICEY`)
   
-      const data = res.data.data
-      setTrack(data.title)
-      setArtist(data.user.name)
-      setArtistId(data.user.id)
-      setCover(data.artwork['150x150'])
+        const data = res.data.data
+        setTrack(data.title)
+        setArtist(data.user.name)
+        setArtistId(data.user.id)
+        setCover(data.artwork['150x150'])
+      } catch (err) {
+        setCurrentTrackId(getNextTrackId())
+      }
     }
   
     const handleRangeChange = (e) => {
@@ -69,14 +100,18 @@ const Player = ({trackId, tracks = []}) => {
       navigate(`/artist/${artistId}`)
     }, [artistId])
   
-    React.useEffect(() => {
-      if (!trackId) {
+
+    useEffect(() => {
+      if (!currentTrackId) {
         return
       }
-      loadTrackInformation(trackId)
-      setStream(`${BASE_URL}/v1/tracks/${trackId}/stream?app_name=SPICEY`)
-      
-      if (!audioRef.current) {
+      loadTrackInformation(currentTrackId)
+      setStream(`${BASE_URL}/v1/tracks/${currentTrackId}/stream?app_name=SPICEY`)
+    }, [currentTrackId])
+
+
+    useEffect(() => {
+      if (!audioRef.current || !stream) {
         return
       }
 
@@ -97,24 +132,24 @@ const Player = ({trackId, tracks = []}) => {
         setIsPlaying(false)
       })
 
+      audioRef.current.addEventListener('canplay', (e) => {
+        onPlaybackTrack(currentTrackId)
+        audioRef.current.play()
+      })
+
+      audioRef.current.addEventListener('ended', () => {
+        setCurrentTrackId(getNextTrackId())
+      })
+
       audioRef.current.pause()
       audioRef.current.load()
-      audioRef.current.play()
-  
 
-  
-
-
-    }, [trackId])
-
-
+    }, [stream])
 
     React.useEffect(() => {
-      if (!audioRef.current || !canvasRef.current || !trackId) {
+      if (!audioRef.current || !canvasRef.current || !currentTrackId) {
         return
       }
-
-
 
       if (!context) {
         context = new AudioContext();
@@ -175,7 +210,7 @@ const Player = ({trackId, tracks = []}) => {
         }
       }
       renderFrame();
-    }, [trackId])
+    }, [currentTrackId])
   
 
     const handleVolumeBlur = React.useCallback(() => {
@@ -189,14 +224,16 @@ const Player = ({trackId, tracks = []}) => {
       }
       audioRef.current.pause()
     }, [])
-
-  
-    if (!trackId) {
-      return null
-    }
-
   
     return (
+    <>
+      <audio crossOrigin="anonymous" style={{display: 'none'}} ref={audioRef}>
+        <source src={stream} type="audio/ogg" />
+        <source src={stream} type="audio/mp3" />
+        <source src={stream} type="audio/mpeg" />
+      </audio>
+    {
+      currentTrackId &&
       <PlayerContainer>
         <canvas ref={canvasRef} style={{position: 'fixed', bottom: 0, left: 0, width: '100vw', height: 50, zIndex: -1}} />
         <ContentContainer>
@@ -212,12 +249,9 @@ const Player = ({trackId, tracks = []}) => {
               <Speaker src={speakerSvg} onClick={handleShowVolume} />
             </SpeakerContainer>
         </ContentContainer>
-        <audio crossOrigin="anonymous" style={{display: 'none'}} ref={audioRef}>
-          <source src={stream} type="audio/ogg" />
-          <source src={stream} type="audio/mp3" />
-          <source src={stream} type="audio/mpeg" />
-        </audio>
       </PlayerContainer>
+    }
+    </>
     )
   }
 
