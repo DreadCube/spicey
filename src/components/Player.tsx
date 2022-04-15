@@ -141,8 +141,25 @@ const Player = ({playlist = [], onPlaybackTrack}) => {
         setCurrentTrackId(getNextTrackId())
       })
 
+      const onKeyDown = e => {
+        if (e.keyCode === 32 || e.code === 'Space') {
+          e.preventDefault()
+          if (audioRef.current.paused) {
+            audioRef.current.play()
+          } else {
+            audioRef.current.pause()
+          }
+        }
+      }
+
+      window.addEventListener('keydown', onKeyDown)
+
       audioRef.current.pause()
       audioRef.current.load()
+
+      return () => {
+        window.removeEventListener('keydown', onKeyDown)
+      }
 
     }, [stream])
 
@@ -160,7 +177,6 @@ const Player = ({playlist = [], onPlaybackTrack}) => {
 
       if (!src) {
         src = context.createMediaElementSource(audioRef.current);
-
       }
 
       var canvas = canvasRef.current
