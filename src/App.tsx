@@ -50,26 +50,18 @@ const LogoWrapper = styled.div`
   margin: 10px;
 `
 
-
 const TracksWrapper = styled.div`
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 180px);
   justify-content: center;
+  grid-gap: 20px;
+  padding-top: 10px;
+  padding-bottom: 10px;
 
   @media only screen and (max-width: 600px) {
-    justify-content: center;
+    grid-template-columns: 160px 160px;
   }
-
 `
-
-/*const TracksWrapper = styled.div`
-  width: 100%;
-  display: grid;
-  justify-items: center;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-`
-*/
 
 const Content = styled.div`
   margin-top: 100px;

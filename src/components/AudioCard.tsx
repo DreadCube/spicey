@@ -6,8 +6,6 @@ import {useNavigate} from 'react-router-dom'
 import placeholderImg from '../icons/apple-touch-icon-180x180.png'
 
 const Card = styled.div`
-  width: 150px;
-  height: 200px;
   background-color: #131313;
   padding: 10px;
   border-radius: 10px;
@@ -16,14 +14,13 @@ const Card = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  margin: 10px;
   ${({isActive}) => isActive ? 'box-shadow: 0px 0px 10px 1px cyan' : ''}
 `
 
 const Cover = styled.img`
   border-radius: 10px;
   box-shadow: 0px 0px 10px #000000;
-  width: inherit;
+  max-width: 150px;
 `
 
 const TextWrapper = styled.div`
