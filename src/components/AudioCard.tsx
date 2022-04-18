@@ -1,11 +1,14 @@
-import React from 'react'
-import styled from 'styled-components'
+import React from 'react';
+import styled from 'styled-components';
 
-import {useNavigate} from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
 
-import placeholderImg from '../icons/apple-touch-icon-180x180.png'
+import placeholderImg from '../icons/apple-touch-icon-180x180.png';
 
-const Card = styled.div`
+interface CardProps {
+  isActive: boolean
+}
+const Card = styled.div<CardProps>`
   background-color: #131313;
   padding: 10px;
   border-radius: 10px;
@@ -14,14 +17,20 @@ const Card = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  ${({isActive}) => isActive ? 'box-shadow: 0px 0px 10px 1px cyan' : ''}
-`
+  ${({ isActive }) => (isActive
+    ? `box-shadow: 0px 0px 10px 1px cyan;
+    .playButton {
+      opacity: 1;
+    }
+    ` : '')}
+
+`;
 
 const Cover = styled.img`
   border-radius: 10px;
   box-shadow: 0px 0px 10px #000000;
   max-width: 150px;
-`
+`;
 
 const TextWrapper = styled.div`
   display: flex;
@@ -29,7 +38,7 @@ const TextWrapper = styled.div`
   height: 50px;
   justify-content: flex-end;
   width: 100%;
-`
+`;
 
 export const Track = styled.span`
   font-family: corma;
@@ -38,7 +47,7 @@ export const Track = styled.span`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-`
+`;
 
 export const Artist = styled.span`
   font-family: miles;
@@ -53,7 +62,7 @@ export const Artist = styled.span`
   &:hover {
     cursor: pointer;
   }
-`
+`;
 
 const CoverWrapper = styled.div`
   width: inherit;
@@ -63,7 +72,7 @@ const CoverWrapper = styled.div`
   &:hover .playButton {
     opacity: 1;
   }
-`
+`;
 
 const PlayButton = styled.img`
   position: absolute;
@@ -73,38 +82,50 @@ const PlayButton = styled.img`
   height: 50px;
   filter: invert(1);
   opacity: 0.2;
-`
+`;
 
-const AudioCard = ({src, track, artist, id, onClick, artistId, isActive}) => {
-  const navigate = useNavigate()
+interface AudioCardProps {
+  src: string
+  track: string
+  artist: string
+  id: string
+  onClick: (id: string) => void
+  artistId: string
+  isActive: boolean
+}
 
-  const coverRef = React.useRef<HTMLImageElement>()
-  const [coverLoaded, setCoverLoaded] = React.useState(false)
+function AudioCard({
+  src, track, artist, id, onClick, artistId, isActive,
+}: AudioCardProps) {
+  const navigate = useNavigate();
+
+  const coverRef = React.useRef<HTMLImageElement>();
+  const [coverLoaded, setCoverLoaded] = React.useState(false);
 
   const handleClick = React.useCallback(() => {
-    onClick(id)
-  }, [id])
+    onClick(id);
+  }, [id]);
 
   const handleArtistClick = React.useCallback(() => {
-    navigate(`/artist/${artistId}`)
-  }, [artistId])
+    navigate(`/artist/${artistId}`);
+  }, [artistId]);
 
   React.useEffect(() => {
-    setCoverLoaded(false)
+    setCoverLoaded(false);
 
-    coverRef.current = new Image()
-    coverRef.current.src = src
+    coverRef.current = new Image();
+    coverRef.current.src = src;
 
     const handleCoverLoaded = () => {
-      setCoverLoaded(true)
-    }
+      setCoverLoaded(true);
+    };
 
-    coverRef.current.addEventListener('load', handleCoverLoaded)
+    coverRef.current.addEventListener('load', handleCoverLoaded);
 
     return () => {
-      coverRef.current.removeEventListener('load', handleCoverLoaded)
-    }
-  }, [src])
+      coverRef.current.removeEventListener('load', handleCoverLoaded);
+    };
+  }, [src]);
 
   return (
     <Card isActive={isActive}>
@@ -117,7 +138,7 @@ const AudioCard = ({src, track, artist, id, onClick, artistId, isActive}) => {
         <Artist onClick={handleArtistClick}>{artist}</Artist>
       </TextWrapper>
     </Card>
-  )
+  );
 }
 
-export default AudioCard
+export default AudioCard;

@@ -1,26 +1,25 @@
-import React from 'react'
+import React from 'react';
 
-import styled from 'styled-components'
+import styled from 'styled-components';
 
-import {Routes, Route, useParams, useNavigate} from 'react-router-dom'
+import {
+  Routes, Route, useParams, useNavigate,
+} from 'react-router-dom';
 
-import Logo, {LogoAlt} from './components/Logo'
-import AudioCard, { Artist, Track } from './components/AudioCard'
-import SearchInput from './components/SearchInput'
+import axios from 'axios';
+import { LogoAlt } from './components/Logo';
+import AudioCard from './components/AudioCard';
+import SearchInput from './components/SearchInput';
 
-import githubSvg from './svgs/github.svg'
-
-
-import axios from 'axios'
-import { BASE_URL } from './config'
-import Player from './components/Player'
+import { BASE_URL } from './config';
+import Player from './components/Player';
 
 const Wrapper: React.FC = styled.div`
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   background-color: black;
-`
+`;
 const Header = styled.div`
   display: flex;
   justify-content: flex-start;
@@ -44,11 +43,11 @@ const Header = styled.div`
       margin-right: 10px;
     }
   }
-`
+`;
 
 const LogoWrapper = styled.div`
   margin: 10px;
-`
+`;
 
 const TracksWrapper = styled.div`
   display: grid;
@@ -61,7 +60,7 @@ const TracksWrapper = styled.div`
   @media only screen and (max-width: 600px) {
     grid-template-columns: 160px 160px;
   }
-`
+`;
 
 const Content = styled.div`
   margin-top: 100px;
@@ -70,83 +69,159 @@ const Content = styled.div`
   @media only screen and (max-width: 600px) {
     margin-top: 150px;
   }
-`
+`;
 
-const HeaderIcon = styled.img`
-  width: 20px;
-  height: 20px;
-  filter: invert(1);
-`
+interface TrackInterface {
+  id: string
+  src: string
+  track: string
+  artist: string
+  artistId: string
+}
+const useTracks = (url: string) => {
+  const [tracks, setTracks] = React.useState<TrackInterface[]>([]);
 
-const useTracks = (url) => {
-  const [tracks, setTracks] = React.useState([])
+  const loadTracks = async (tracksUrl: string) => {
+    const res = await axios.get(tracksUrl);
 
-  const loadTracks = async (url) => {
-    const res = await axios.get(url)
+    const foundedTracks = res.data.data.map((track) => ({
+      id: track.id,
+      src: track.artwork['150x150'],
+      track: track.title,
+      artist: track.user.name,
+      artistId: track.user.id,
+    }));
 
-    const foundedTracks = res.data.data.map(track => {
-      
-      return {
-        id: track.id,
-        src: track.artwork['150x150'],
-        track: track.title,
-        artist: track.user.name,
-        artistId: track.user.id,
-      }
-    })
-
-    setTracks(foundedTracks)
-  }
+    setTracks(foundedTracks);
+  };
 
   React.useEffect(() => {
-    loadTracks(url)
-  }, [url])
+    loadTracks(url);
+  }, [url]);
 
   return {
-    tracks
-  }
-}
+    tracks,
+  };
+};
 
 const getTrackUrl = (search) => {
   if (search.length) {
-    return `${BASE_URL}/v1/tracks/search?query=${search}&app_name=SPICEY`
+    return `${BASE_URL}/v1/tracks/search?query=${search}&app_name=SPICEY`;
   }
-  return `${BASE_URL}/v1/tracks/trending?app_name=SPICEY`
-} 
+  return `${BASE_URL}/v1/tracks/trending?app_name=SPICEY`;
+};
 
-const App = () => {
-  const [search, setSearch] = React.useState('')
-  const {tracks} = useTracks(getTrackUrl(search))
-  const [playingTrackId, setPlayingTrackId] = React.useState(null)
-  const [playlist, setPlaylist] = React.useState([])
+interface DashboardProps {
+  tracks: TrackInterface[]
+  handlePlayTrack: (id: string) => void
+  playingTrackId: string
+}
+function Dashboard({ tracks, handlePlayTrack, playingTrackId }: DashboardProps) {
+  return (
+    <TracksWrapper>
+      {tracks.map((track) => (
+        <AudioCard
+          onClick={handlePlayTrack}
+          key={track.id}
+          id={track.id}
+          src={track.src}
+          track={track.track}
+          artist={track.artist}
+          artistId={track.artistId}
+          isActive={playingTrackId === track.id}
+        />
+      ))}
+    </TracksWrapper>
+  );
+}
 
-  const navigate = useNavigate()
+interface CoverProps {
+  src: string
+}
+const Cover = styled.div<CoverProps>`
+  background-image: url("${({ src }) => src}");
 
-  const onSearch = async (search) => {
-    setSearch(search)
-    navigate('/')
-  }
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+
+  width: 100%;
+  height: 100%;
+
+  min-height: calc(100vh - 150px);
+`;
+
+interface UserPageProps {
+  handlePlayTrack: (id: string) => void
+  playingTrackId: string
+}
+function UserPage({ handlePlayTrack, playingTrackId }: UserPageProps) {
+  const { artistId } = useParams();
+
+  const [cover, setCover] = React.useState('');
+
+  const { tracks } = useTracks(`${BASE_URL}/v1/users/${artistId}/tracks?app_name=SPICEY`);
+
+  const loadArtist = async (id: string) => {
+    const res = await axios.get(`${BASE_URL}/v1/users/${id}?app_name=SPICEY`);
+    setCover(res.data.data.cover_photo['2000x']);
+  };
+
+  React.useEffect(() => {
+    loadArtist(artistId);
+  }, [artistId]);
+
+  return (
+    <Cover src={cover}>
+      <TracksWrapper>
+        {tracks.map((track) => (
+          <AudioCard
+            onClick={handlePlayTrack}
+            key={track.id}
+            id={track.id}
+            src={track.src}
+            track={track.track}
+            artist={track.artist}
+            artistId={track.artistId}
+            isActive={playingTrackId === track.id}
+          />
+        ))}
+      </TracksWrapper>
+    </Cover>
+  );
+}
+
+function App() {
+  const [search, setSearch] = React.useState('');
+  const { tracks } = useTracks(getTrackUrl(search));
+  const [playingTrackId, setPlayingTrackId] = React.useState(null);
+  const [playlist, setPlaylist] = React.useState([]);
+
+  const navigate = useNavigate();
+
+  const onSearch = async (s: string) => {
+    setSearch(s);
+    navigate('/');
+  };
 
   const handlePlayTrack = React.useCallback((trackId) => {
-    const index = tracks.findIndex(e => e.id === trackId)
+    const index = tracks.findIndex((e) => e.id === trackId);
 
-    const prevTracks = tracks.slice(0, index)
-    const nextTracks = tracks.slice(index)
+    const prevTracks = tracks.slice(0, index);
+    const nextTracks = tracks.slice(index);
 
     const newPlaylist = [
       ...nextTracks,
-      ...prevTracks
-    ]
+      ...prevTracks,
+    ];
 
-    setPlaylist(newPlaylist)
+    setPlaylist(newPlaylist);
+  }, [tracks]);
 
-  }, [tracks])
-
-  const onPlaybackTrack = React.useCallback(trackId => {
-    setPlayingTrackId(trackId)
-  }, [])
-
-
+  const onPlaybackTrack = React.useCallback((trackId) => {
+    setPlayingTrackId(trackId);
+  }, []);
 
   return (
     <Wrapper>
@@ -165,78 +240,7 @@ const App = () => {
       </Content>
       <Player playlist={playlist} onPlaybackTrack={onPlaybackTrack} />
     </Wrapper>
-  )
+  );
 }
 
-const Dashboard = ({tracks, handlePlayTrack, playingTrackId}) => {
-  return (
-    <TracksWrapper>
-      {tracks.map(track => (
-        <AudioCard 
-          onClick={handlePlayTrack} 
-          key={track.id} 
-          id={track.id} 
-          src={track.src} 
-          track={track.track} 
-          artist={track.artist}
-          artistId={track.artistId}
-          isActive={playingTrackId === track.id}
-          />
-      ))}
-    </TracksWrapper>
-  )
-}
-
-const Cover = styled.div`
-  background-image: url("${({src}) => src}");
-
-  background-attachment: fixed;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-
-  width: 100%;
-  height: 100%;
-
-  min-height: calc(100vh - 150px);
-`
-
-const UserPage = ({handlePlayTrack, playingTrackId}) => {
-  const {artistId} = useParams()
-
-  const [cover, setCover] = React.useState('')
-
-  const {tracks} = useTracks(`${BASE_URL}/v1/users/${artistId}/tracks?app_name=SPICEY`)
-
-  const loadArtist = async artistId => {
-    const res = await axios.get(`${BASE_URL}/v1/users/${artistId}?app_name=SPICEY`)    
-    setCover(res.data.data.cover_photo['2000x'])
-  }
-
-  React.useEffect(() => {
-    loadArtist(artistId)
-  }, [artistId])
-
-  return (
-    <Cover src={cover}>
-      <TracksWrapper>
-        {tracks.map(track => (
-          <AudioCard 
-            onClick={handlePlayTrack} 
-            key={track.id} 
-            id={track.id} 
-            src={track.src} 
-            track={track.track} 
-            artist={track.artist}
-            artistId={track.artistId}
-            isActive={playingTrackId === track.id}
-          />
-        ))}
-      </TracksWrapper>
-    </Cover>
-  ) 
-}
-
-
-
-export default App
+export default App;
