@@ -104,11 +104,11 @@ function AudioCard({
 
   const handleClick = React.useCallback(() => {
     onClick(id);
-  }, [id]);
+  }, [id, onClick]);
 
   const handleArtistClick = React.useCallback(() => {
     navigate(`/artist/${artistId}`);
-  }, [artistId]);
+  }, [artistId, navigate]);
 
   React.useEffect(() => {
     setCoverLoaded(false);

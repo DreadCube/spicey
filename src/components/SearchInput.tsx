@@ -28,7 +28,8 @@ function SearchInput({ onSearch }: SearchInputProps) {
     return () => {
       clearTimeout(timeout);
     };
-  }, [value]);
+  }, [value, onSearch]);
+
   const onChange = (e) => {
     setValue(e.target.value);
   };

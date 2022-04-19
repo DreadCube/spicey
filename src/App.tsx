@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import styled from 'styled-components';
 
@@ -200,10 +200,10 @@ function App() {
 
   const navigate = useNavigate();
 
-  const onSearch = async (s: string) => {
+  const onSearch = useCallback(async (s: string) => {
     setSearch(s);
     navigate('/');
-  };
+  }, [navigate]);
 
   const handlePlayTrack = React.useCallback((trackId) => {
     const index = tracks.findIndex((e) => e.id === trackId);

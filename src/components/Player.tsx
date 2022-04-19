@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -222,7 +222,7 @@ function Player({ playlist = [], onPlaybackTrack }) {
   const audioRef = React.useRef<HTMLAudioElement>();
   const canvasRef = React.useRef<HTMLCanvasElement>();
 
-  const getNextTrackId = () => {
+  const getNextTrackId = useCallback(() => {
     const index = activePlaylist.findIndex((e) => e.id === currentTrackId);
 
     const nextTrackId = activePlaylist[index + 1]
@@ -230,9 +230,9 @@ function Player({ playlist = [], onPlaybackTrack }) {
       : activePlaylist[0].id;
 
     return nextTrackId;
-  };
+  }, [activePlaylist, currentTrackId]);
 
-  const loadTrackInformation = async (trackId) => {
+  const loadTrackInformation = useCallback(async (trackId) => {
     // Only here to check, if the stream is actually reachable
     axios.get(`${BASE_URL}/v1/tracks/${currentTrackId}/stream?app_name=SPICEY`)
       .catch(() => {
@@ -251,7 +251,7 @@ function Player({ playlist = [], onPlaybackTrack }) {
     } catch (err) {
       setCurrentTrackId(getNextTrackId());
     }
-  };
+  }, [currentTrackId, getNextTrackId]);
 
   const handleRangeChange = (e) => {
     const { duration } = audioRef.current;
@@ -272,7 +272,7 @@ function Player({ playlist = [], onPlaybackTrack }) {
 
   const handleArtistClick = React.useCallback(() => {
     navigate(`/artist/${artistId}`);
-  }, [artistId]);
+  }, [artistId, navigate]);
 
   useEffect(() => {
     if (!currentTrackId) {
@@ -280,7 +280,7 @@ function Player({ playlist = [], onPlaybackTrack }) {
     }
     loadTrackInformation(currentTrackId);
     setStream(`${BASE_URL}/v1/tracks/${currentTrackId}/stream?app_name=SPICEY`);
-  }, [currentTrackId]);
+  }, [currentTrackId, loadTrackInformation]);
 
   useEffect(() => {
     if (!audioRef.current) {
@@ -342,7 +342,7 @@ function Player({ playlist = [], onPlaybackTrack }) {
 
       window.removeEventListener('keydown', onKeyDown);
     };
-  }, []);
+  }, [currentTrackId, getNextTrackId, onPlaybackTrack]);
 
   useEffect(() => {
     if (!audioRef.current || !stream) {
