@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 
@@ -49,7 +49,7 @@ function Logo() {
 function LogoAlt() {
   const navigate = useNavigate();
 
-  const handleClick = React.useCallback(() => {
+  const handleClick = useCallback(() => {
     navigate('/');
   }, [navigate]);
 
