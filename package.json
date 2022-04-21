@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "parcel",
-    "build": "parcel build"
+    "build": "parcel build && npm run copy",
+    "copy": "cp ./public/.htaccess dist"
   },
   "author": "",
   "license": "ISC",
