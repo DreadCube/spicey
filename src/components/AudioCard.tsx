@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 
 import placeholderImg from '../icons/apple-touch-icon-180x180.png';
+import isVerifiedSvg from '../svgs/verified.svg';
+import { Track } from '../types';
 
 interface CardProps {
   isActive: boolean
@@ -40,7 +42,7 @@ const TextWrapper = styled.div`
   width: 100%;
 `;
 
-export const Track = styled.span`
+export const TrackName = styled.span`
   font-family: corma;
   color: #00ffff;
   line-height: 1;
@@ -84,19 +86,22 @@ const PlayButton = styled.img`
   opacity: 0.2;
 `;
 
-interface AudioCardProps {
-  src: string
-  track: string
-  artist: string
-  id: string
-  onClick: (id: string) => void
-  artistId: string
+const Verified = styled.img`
+  margin-left: 5px;
+  filter: invert(1);
+  width: 10px;
+  height: 10px;
+  vertical-align: bottom;
+`;
+
+interface AudioCardInterface extends Track {
   isActive: boolean
+  onClick: (id: string) => void
 }
 
 function AudioCard({
-  src, track, artist, id, onClick, artistId, isActive,
-}: AudioCardProps) {
+  artworkSrc, trackName, artist, id, onClick, isActive,
+}: AudioCardInterface) {
   const navigate = useNavigate();
 
   const coverRef = React.useRef<HTMLImageElement>();
@@ -107,14 +112,14 @@ function AudioCard({
   }, [id, onClick]);
 
   const handleArtistClick = React.useCallback(() => {
-    navigate(`/artist/${artistId}`);
-  }, [artistId, navigate]);
+    navigate(`/artist/${artist.id}`);
+  }, [artist.id, navigate]);
 
   React.useEffect(() => {
     setCoverLoaded(false);
 
     coverRef.current = new Image();
-    coverRef.current.src = src;
+    coverRef.current.src = artworkSrc;
 
     const handleCoverLoaded = () => {
       setCoverLoaded(true);
@@ -125,17 +130,20 @@ function AudioCard({
     return () => {
       coverRef.current.removeEventListener('load', handleCoverLoaded);
     };
-  }, [src]);
+  }, [artworkSrc]);
 
   return (
     <Card isActive={isActive}>
       <CoverWrapper onClick={handleClick}>
-        <Cover src={!coverLoaded ? placeholderImg : src} />
+        <Cover src={!coverLoaded ? placeholderImg : artworkSrc} />
         <PlayButton className="playButton" src="https://www.svgrepo.com/show/13672/play-button.svg" />
       </CoverWrapper>
       <TextWrapper>
-        <Track>{track}</Track>
-        <Artist onClick={handleArtistClick}>{artist}</Artist>
+        <TrackName>{trackName}</TrackName>
+        <Artist onClick={handleArtistClick}>
+          {artist.name}
+          {artist.isVerified && <Verified src={isVerifiedSvg} />}
+        </Artist>
       </TextWrapper>
     </Card>
   );

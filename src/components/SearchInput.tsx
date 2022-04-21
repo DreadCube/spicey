@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 
 const Search = styled.input`
@@ -16,25 +16,28 @@ interface SearchInputProps {
 }
 function SearchInput({ onSearch }: SearchInputProps) {
   const [value, setValue] = React.useState('');
+  const [nextValue, setNextValue] = React.useState('');
 
   React.useEffect(() => {
-    if (value.length <= 0) {
+    if (nextValue.length <= 0 || value === nextValue) {
       return;
     }
     const timeout = setTimeout(() => {
-      onSearch(value);
+      onSearch(nextValue);
+      setValue(nextValue);
     }, 1000);
 
     return () => {
       clearTimeout(timeout);
     };
-  }, [value, onSearch]);
+  }, [value, nextValue, onSearch]);
 
-  const onChange = (e) => {
-    setValue(e.target.value);
-  };
+  const onChange = useCallback((e) => {
+    setNextValue(e.target.value);
+  }, []);
+
   return (
-    <Search type="text" placeholder="Search..." onChange={onChange} value={value} />
+    <Search type="text" placeholder="Search..." onChange={onChange} value={nextValue} />
   );
 }
 

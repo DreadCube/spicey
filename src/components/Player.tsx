@@ -4,13 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import axios from 'axios';
 
-import { Artist, Track } from './AudioCard';
+import { Artist, TrackName } from './AudioCard';
 
 import speakerSvg from '../svgs/speaker.svg';
 import playSvg from '../svgs/play.svg';
 import pauseSvg from '../svgs/pause.svg';
 
 import { BASE_URL } from '../config';
+import { Track } from '../types';
 
 let context;
 let analyser;
@@ -190,7 +191,12 @@ const PlayControls = styled.img`
   cursor: pointer;
 `;
 
-function Player({ playlist = [], onPlaybackTrack }) {
+interface PlayerInterface {
+  playlist: Track[]
+  onPlaybackTrack: (id: string) => void
+}
+
+function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
   const navigate = useNavigate();
 
   const [currentTrackId, setCurrentTrackId] = React.useState(null);
@@ -316,6 +322,10 @@ function Player({ playlist = [], onPlaybackTrack }) {
 
     const onKeyDown = (e) => {
       if (e.keyCode === 32 || e.code === 'Space') {
+        // We don't wanna interupt a input field
+        if (e.target.nodeName === 'INPUT') {
+          return;
+        }
         e.preventDefault();
         if (audioRef.current.paused) {
           audioRef.current.play();
@@ -446,7 +456,7 @@ function Player({ playlist = [], onPlaybackTrack }) {
         <ContentContainer>
           <Cover src={cover} />
           <DescriptionContainer>
-            <Track>{track}</Track>
+            <TrackName>{track}</TrackName>
             <Artist onClick={handleArtistClick}>{artist}</Artist>
           </DescriptionContainer>
           <PlayControls src={isPlaying ? pauseSvg : playSvg} onClick={handleTogglePlay} />
