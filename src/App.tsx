@@ -6,11 +6,12 @@ import {
   useNavigate, useLocation,
 } from 'react-router-dom';
 
-import axios from 'axios';
 import { LogoAlt } from './components/Logo';
 import AudioCard from './components/AudioCard';
 import SearchInput from './components/SearchInput';
 import Player from './components/Player';
+
+import useTracks from './hooks/useTracks';
 
 import { BASE_URL } from './config';
 import { Track } from './types';
@@ -21,6 +22,7 @@ const Wrapper: React.FC = styled.div`
   flex-direction: column;
   background-color: black;
 `;
+
 const Header = styled.div`
   display: flex;
   justify-content: flex-start;
@@ -71,35 +73,6 @@ const Content = styled.div`
     margin-top: 150px;
   }
 `;
-
-const useTracks = (url: string) => {
-  const [tracks, setTracks] = React.useState<Track[]>([]);
-
-  const loadTracks = async (tracksUrl: string) => {
-    const res = await axios.get(tracksUrl);
-
-    const foundedTracks: Track[] = res.data.data.map((track) => ({
-      id: track.id,
-      artworkSrc: track.artwork['150x150'],
-      trackName: track.title,
-      artist: {
-        id: track.user.id,
-        name: track.user.name,
-        isVerified: track.user.is_verified,
-      },
-    }));
-
-    setTracks(foundedTracks);
-  };
-
-  React.useEffect(() => {
-    loadTracks(url);
-  }, [url]);
-
-  return {
-    tracks,
-  };
-};
 
 const getTrackUrl = (location) => {
   const searchParams = new URLSearchParams(location.search);
