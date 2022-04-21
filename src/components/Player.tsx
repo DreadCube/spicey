@@ -1,4 +1,6 @@
-import React, { useEffect, useCallback } from 'react';
+import React, {
+  useState, useEffect, useCallback, useRef,
+} from 'react';
 
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -199,8 +201,8 @@ interface PlayerInterface {
 function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
   const navigate = useNavigate();
 
-  const [currentTrackId, setCurrentTrackId] = React.useState(null);
-  const [activePlaylist, setActivePlaylist] = React.useState([]);
+  const [currentTrackId, setCurrentTrackId] = useState(null);
+  const [activePlaylist, setActivePlaylist] = useState([]);
 
   useEffect(() => {
     if (!playlist.length) {
@@ -210,23 +212,23 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
     setCurrentTrackId(playlist[0].id);
   }, [playlist]);
 
-  const [stream, setStream] = React.useState(null);
+  const [stream, setStream] = useState(null);
 
-  const [track, setTrack] = React.useState('');
-  const [artist, setArtist] = React.useState('');
-  const [artistId, setArtistId] = React.useState('');
+  const [track, setTrack] = useState('');
+  const [artist, setArtist] = useState('');
+  const [artistId, setArtistId] = useState('');
 
-  const [cover, setCover] = React.useState('');
+  const [cover, setCover] = useState('');
 
-  const [RangeValue, setRangeValue] = React.useState(0);
+  const [RangeValue, setRangeValue] = useState(0);
 
-  const [isPlaying, setIsPlaying] = React.useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
 
-  const [volume, setVolume] = React.useState(1);
-  const [showVolume, setShowVolume] = React.useState(false);
+  const [volume, setVolume] = useState(1);
+  const [showVolume, setShowVolume] = useState(false);
 
-  const audioRef = React.useRef<HTMLAudioElement>();
-  const canvasRef = React.useRef<HTMLCanvasElement>();
+  const audioRef = useRef<HTMLAudioElement>();
+  const canvasRef = useRef<HTMLCanvasElement>();
 
   const getNextTrackId = useCallback(() => {
     const index = activePlaylist.findIndex((e) => e.id === currentTrackId);
@@ -276,7 +278,7 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
     setShowVolume((prev) => !prev);
   };
 
-  const handleArtistClick = React.useCallback(() => {
+  const handleArtistClick = useCallback(() => {
     navigate(`/artist/${artistId}`);
   }, [artistId, navigate]);
 
@@ -363,7 +365,7 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
     audioRef.current.load();
   }, [stream]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!audioRef.current || !canvasRef.current || !currentTrackId) {
       return;
     }
@@ -424,11 +426,11 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
     renderFrame();
   }, [currentTrackId]);
 
-  const handleVolumeBlur = React.useCallback(() => {
+  const handleVolumeBlur = useCallback(() => {
     setShowVolume(false);
   }, []);
 
-  const handleTogglePlay = React.useCallback(() => {
+  const handleTogglePlay = useCallback(() => {
     if (audioRef.current.paused) {
       audioRef.current.play();
       return;

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 
 const Search = styled.input`
@@ -15,8 +15,8 @@ interface SearchInputProps {
   onSearch: (value: string) => void
 }
 function SearchInput({ onSearch }: SearchInputProps) {
-  const [value, setValue] = React.useState('');
-  const [nextValue, setNextValue] = React.useState('');
+  const [value, setValue] = useState('');
+  const [nextValue, setNextValue] = useState('');
 
   React.useEffect(() => {
     if (nextValue.length <= 0 || value === nextValue) {

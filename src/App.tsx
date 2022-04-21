@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 
 import styled from 'styled-components';
 
@@ -91,19 +91,19 @@ function App() {
   const location = useLocation();
 
   const { tracks } = useTracks(getTrackUrl(location));
-  const [playingTrackId, setPlayingTrackId] = React.useState<string>(null);
-  const [playlist, setPlaylist] = React.useState<Track[]>([]);
+  const [playingTrackId, setPlayingTrackId] = useState<string>(null);
+  const [playlist, setPlaylist] = useState<Track[]>([]);
 
   const navigate = useNavigate();
 
-  const onSearch = useCallback(async (s: string) => {
+  const onSearch = useCallback(async (search: string) => {
     navigate({
       pathname: '/',
-      search: `?search=${s}`,
+      search: `?search=${search}`,
     });
   }, [navigate]);
 
-  const handlePlayTrack = React.useCallback((trackId) => {
+  const handlePlayTrack = useCallback((trackId) => {
     const index = tracks.findIndex((e) => e.id === trackId);
 
     const prevTracks = tracks.slice(0, index);
@@ -117,7 +117,7 @@ function App() {
     setPlaylist(newPlaylist);
   }, [tracks]);
 
-  const onPlaybackTrack = React.useCallback((trackId) => {
+  const onPlaybackTrack = useCallback((trackId) => {
     setPlayingTrackId(trackId);
   }, []);
 
