@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "parcel serve src/index.html",
     "build": "parcel build && npm run copy",
-    "copy": "cp ./public/.htaccess dist"
+    "copy": "cp ./public/.htaccess dist && cp ./public/_redirects dist"
   },
   "author": "",
   "license": "ISC",
