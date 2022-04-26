@@ -199,6 +199,8 @@ interface PlayerInterface {
   onPlaybackTrack: (id: string) => void
 }
 
+const PLAYBACK_RANGE_MAX = 10000;
+
 function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
   const navigate = useNavigate();
 
@@ -265,7 +267,8 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
   const handleRangeChange = (e) => {
     const { duration } = audioRef.current;
 
-    audioRef.current.currentTime = (duration / 100) * e.target.value;
+    audioRef.current.currentTime = (duration / PLAYBACK_RANGE_MAX) * e.target.value;
+
     audioRef.current.play();
   };
 
@@ -302,7 +305,7 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
         ? audioRef.current.currentTime
         : 0;
 
-      const newRangeValue = Math.round((100 / duration) * currentTime);
+      const newRangeValue = Math.round((PLAYBACK_RANGE_MAX / duration) * currentTime);
       setRangeValue(!Number.isNaN(newRangeValue) ? newRangeValue : 0);
     };
 
@@ -463,7 +466,7 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
             <Artist onClick={handleArtistClick}>{artist}</Artist>
           </DescriptionContainer>
           <PlayControls src={isPlaying ? pauseSvg : playSvg} onClick={handleTogglePlay} />
-          <Range type="range" value={RangeValue} onChange={handleRangeChange} />
+          <Range type="range" value={RangeValue} onChange={handleRangeChange} max={PLAYBACK_RANGE_MAX} />
           <SpeakerContainer>
             <VolumeRange onBlur={handleVolumeBlur} showVolume={showVolume} type="range" min={0} max={1} step={0.1} value={volume} onChange={handleVolumeChange} />
             <Speaker src={speakerSvg} onClick={handleShowVolume} />
