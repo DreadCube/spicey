@@ -5,7 +5,7 @@
   "source": "src/index.html",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "parcel serve src/index.html",
+    "start": "parcel serve src/index.html --no-cache",
     "build": "parcel build && npm run copy",
     "copy": "cp ./public/.htaccess dist && cp ./public/_redirects dist"
   },
