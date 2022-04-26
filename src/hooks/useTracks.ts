@@ -18,6 +18,11 @@ const useTracks = (url: string) => {
         id: track.user.id,
         name: track.user.name,
         isVerified: track.user.is_verified,
+        coverSrc: track.user.cover_photo['2000x'],
+        profilePictureSrc: track.user.profile_picture['1000x1000'],
+        followers: track.user.follower_count,
+        location: track.user.location,
+        trackCount: track.user.track_count,
       },
     }));
 
