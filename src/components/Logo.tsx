@@ -37,6 +37,47 @@ const FrameAlt = styled.div`
   }
 `;
 
+const Easter = styled.div`
+  display: inline-block;
+  transform-origin: bottom;
+
+  @keyframes easteregg {
+    0% {
+      transform: rotate(-5deg);
+    }
+
+    25% {
+      transform: rotate(5deg);
+    }
+
+    50% {
+      transform: translateY(0px) rotate(-20deg);
+      
+    }
+
+    80% {
+      transform: translateY(100vh) rotate(-90deg);
+    }
+
+    81% {
+      transform: translateY(-100px) rotate(-90deg);
+    }
+
+    100% {
+      translateY(-60px) rotate(-90deg);
+    }
+  }
+
+
+  &:hover {
+    animation-iteration-count: 1;
+    animation-name: easteregg;
+    animation-duration: 1.5s;
+    animation-fill-mode: none;
+    animation-timing-function: ease-in;
+  }
+`;
+
 function Logo() {
   return (
     <Frame>
@@ -55,7 +96,11 @@ function LogoAlt() {
 
   return (
     <FrameAlt onClick={handleClick}>
-      <Title>Spicey</Title>
+      <Title>
+        Spic
+        <Easter>e</Easter>
+        y
+      </Title>
       <SubTitle>Audius Player</SubTitle>
     </FrameAlt>
   );

@@ -29,7 +29,6 @@ const useTracks = (url: string) => {
       },
     }));
 
-    console.log(foundedTracks);
     setTracks(foundedTracks);
   };
 

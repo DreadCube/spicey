@@ -207,10 +207,13 @@ function App() {
                 <img src={trackCountSvg} style={{ width: 20, height: 20, filter: 'invert(1)' }} />
                 <Artist style={{ fontSize: 15, marginLeft: 5 }}>{artist.trackCount}</Artist>
               </div>
-              <div style={{ marginLeft: 10, display: 'flex', alignItems: 'end' }}>
-                <img src={locationSvg} style={{ width: 20, height: 20, filter: 'invert(1)' }} />
-                <Artist style={{ fontSize: 15, marginLeft: 5 }}>{artist.location}</Artist>
-              </div>
+              {artist.location
+                && (
+                <div style={{ marginLeft: 10, display: 'flex', alignItems: 'end' }}>
+                  <img src={locationSvg} style={{ width: 20, height: 20, filter: 'invert(1)' }} />
+                  <Artist style={{ fontSize: 15, marginLeft: 5 }}>{artist.location}</Artist>
+                </div>
+                )}
             </div>
           </ArtistHeaderDescription>
         </ArtistHeaderSection>

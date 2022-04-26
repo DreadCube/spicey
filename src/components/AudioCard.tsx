@@ -25,7 +25,6 @@ const Card = styled.div<CardProps>`
       opacity: 1;
     }
     ` : '')}
-
 `;
 
 const Cover = styled.img`
