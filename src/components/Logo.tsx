@@ -72,7 +72,7 @@ const Easter = styled.div`
   &:hover {
     animation-iteration-count: 1;
     animation-name: easteregg;
-    animation-duration: 1.5s;
+    animation-duration: 2s;
     animation-fill-mode: none;
     animation-timing-function: ease-in;
   }
