@@ -4,6 +4,8 @@ import axios from 'axios';
 
 import { Track } from '../types';
 
+import placeholderImg from '../icons/apple-touch-icon-180x180.png';
+
 const useTracks = (url: string) => {
   const [tracks, setTracks] = useState<Track[]>([]);
 
@@ -18,7 +20,8 @@ const useTracks = (url: string) => {
         id: track.user.id,
         name: track.user.name,
         isVerified: track.user.is_verified,
-        coverSrc: track.user.cover_photo['2000x'],
+        // TODO: Better Cover Photo as placeholder
+        coverSrc: track.user.cover_photo?.['2000x'] || placeholderImg,
         profilePictureSrc: track.user.profile_picture['1000x1000'],
         followers: track.user.follower_count,
         location: track.user.location,
@@ -26,6 +29,7 @@ const useTracks = (url: string) => {
       },
     }));
 
+    console.log(foundedTracks);
     setTracks(foundedTracks);
   };
 

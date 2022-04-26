@@ -24,7 +24,8 @@ const PlayerContainer = styled.div`
   height: 50px;
   background-color: #131313;
   position: fixed;
-  bottom: 0
+  bottom: 0;
+  z-index: 99;
 `;
 
 const ContentContainer = styled.div`

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 
 import styled from 'styled-components';
 
@@ -82,8 +82,7 @@ const ArtistHeaderSection = styled.div`
   height: 300px;
   background-color: black;
   border-radius: 0px;
-  box-shadow: 0px 0px 0px 1px cyan;
-  margin: 50px;
+  margin-bottom: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -143,6 +142,10 @@ const getTrackUrl = (location) => {
 
 function App() {
   const location = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   const { tracks } = useTracks(getTrackUrl(location));
   const [playingTrackId, setPlayingTrackId] = useState<string>(null);
