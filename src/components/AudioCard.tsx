@@ -48,6 +48,7 @@ export const TrackName = styled.span`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  cursor: pointer;
 `;
 
 export const Artist = styled.span`
@@ -114,6 +115,11 @@ function AudioCard({
     navigate(`/artist/${artist.id}`);
   }, [artist.id, navigate]);
 
+  const handleTrackClick = React.useCallback(() => {
+    // TODO: create track page
+    // navigate(`/track/${id}`);
+  }, [navigate, id]);
+
   React.useEffect(() => {
     setCoverLoaded(false);
 
@@ -138,7 +144,7 @@ function AudioCard({
         <PlayButton className="playButton" src="https://www.svgrepo.com/show/13672/play-button.svg" />
       </CoverWrapper>
       <TextWrapper>
-        <TrackName>{trackName}</TrackName>
+        <TrackName onClick={handleTrackClick}>{trackName}</TrackName>
         <Artist onClick={handleArtistClick}>
           {artist.name}
           {artist.isVerified && <Verified src={isVerifiedSvg} />}

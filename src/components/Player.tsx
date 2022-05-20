@@ -2,7 +2,7 @@ import React, {
   useState, useEffect, useCallback, useRef,
 } from 'react';
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import axios from 'axios';
 
@@ -14,6 +14,10 @@ import pauseSvg from '../svgs/pause.svg';
 
 import { BASE_URL } from '../config';
 import { Track } from '../types';
+import Vinyl from './Vinyl';
+import useAudioSpectrum from '../hooks/useAudioSpectrum';
+
+import spectrum from '../helpers/spectrum';
 
 let context;
 let analyser;
@@ -26,6 +30,10 @@ const PlayerContainer = styled.div`
   position: fixed;
   bottom: 0;
   z-index: 99;
+
+  ${({ trackMode }) => (trackMode ? `
+    height: 100%;
+  ` : '')}
 `;
 
 const ContentContainer = styled.div`
@@ -35,6 +43,10 @@ const ContentContainer = styled.div`
   justify-content: space-evenly;
   margin-left: 20px;
   margin-right: 20px;
+
+  ${({ trackMode }) => (trackMode ? `
+    flex-direction: column;
+` : '')}
 `;
 
 const DescriptionContainer = styled.div`
@@ -194,6 +206,13 @@ const PlayControls = styled.img`
   cursor: pointer;
 `;
 
+const Controls = styled.div`
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+`;
+
 interface PlayerInterface {
   playlist: Track[]
   onPlaybackTrack: (id: string) => void
@@ -203,6 +222,9 @@ const PLAYBACK_RANGE_MAX = 10000;
 
 function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const onTrackPage = location.pathname.includes('/track/');
 
   const [currentTrackId, setCurrentTrackId] = useState(null);
   const [activePlaylist, setActivePlaylist] = useState([]);
@@ -245,14 +267,14 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
 
   const loadTrackInformation = useCallback(async (trackId) => {
     // Only here to check, if the stream is actually reachable
-    axios.get(`${BASE_URL}/v1/tracks/${currentTrackId}/stream?app_name=SPICEY`)
+    axios.get(`${localStorage.getItem('host')}/v1/tracks/${currentTrackId}/stream?app_name=SPICEY`)
       .catch(() => {
         // If not, load the next track
         setCurrentTrackId(getNextTrackId());
       });
 
     try {
-      const res = await axios.get(`${BASE_URL}/v1/tracks/${trackId}?app_name=SPICEY`);
+      const res = await axios.get(`${localStorage.getItem('host')}/v1/tracks/${trackId}?app_name=SPICEY`);
 
       const { data } = res.data;
       setTrack(data.title);
@@ -291,7 +313,7 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
       return;
     }
     loadTrackInformation(currentTrackId);
-    setStream(`${BASE_URL}/v1/tracks/${currentTrackId}/stream?app_name=SPICEY`);
+    setStream(`${localStorage.getItem('host')}/v1/tracks/${currentTrackId}/stream?app_name=SPICEY`);
   }, [currentTrackId, loadTrackInformation]);
 
   useEffect(() => {
@@ -350,6 +372,9 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
     window.addEventListener('keydown', onKeyDown);
 
     return () => {
+      if (!audioRef.current) {
+        return;
+      }
       audioRef.current.removeEventListener('timeupdate', onTimeUpdate);
       audioRef.current.removeEventListener('play', onPlay);
       audioRef.current.removeEventListener('pause', onPause);
@@ -367,68 +392,12 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
 
     audioRef.current.pause();
     audioRef.current.load();
+
+    spectrum.start({
+      canvasRef,
+      audioRef,
+    });
   }, [stream]);
-
-  useEffect(() => {
-    if (!audioRef.current || !canvasRef.current || !currentTrackId) {
-      return;
-    }
-
-    if (!context) {
-      context = new AudioContext();
-    }
-    if (!analyser) {
-      analyser = context.createAnalyser();
-    }
-
-    if (!src) {
-      src = context.createMediaElementSource(audioRef.current);
-    }
-
-    const canvas = canvasRef.current;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    const ctx = canvas.getContext('2d');
-
-    src.connect(analyser);
-    analyser.connect(context.destination);
-
-    analyser.fftSize = 512;
-
-    const bufferLength = analyser.frequencyBinCount;
-
-    const dataArray = new Uint8Array(bufferLength);
-
-    const WIDTH = canvas.width;
-    const HEIGHT = canvas.height;
-
-    const barWidth = (WIDTH / bufferLength) * 1.5;
-    let barHeight;
-    let x = 0;
-
-    function renderFrame() {
-      requestAnimationFrame(renderFrame);
-
-      x = 0;
-
-      analyser.getByteFrequencyData(dataArray);
-
-      ctx.fillStyle = 'rgba(19, 19, 19, 1)';
-      ctx.fillRect(0, 0, WIDTH, HEIGHT);
-
-      for (let i = 0; i < bufferLength; i++) {
-        barHeight = dataArray[i];
-
-        // ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
-        ctx.fillStyle = '#00ffff';
-        // ctx.fillStyle = "#000000";
-        ctx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
-
-        x += barWidth + 1;
-      }
-    }
-    renderFrame();
-  }, [currentTrackId]);
 
   const handleVolumeBlur = useCallback(() => {
     setShowVolume(false);
@@ -452,25 +421,27 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
       {
       currentTrackId
       && (
-      <PlayerContainer>
+      <PlayerContainer trackMode={onTrackPage}>
         <canvas
           ref={canvasRef}
           style={{
             position: 'fixed', bottom: 0, left: 0, width: '100vw', height: 50, zIndex: -1,
           }}
         />
-        <ContentContainer>
-          <Cover src={cover} />
+        <ContentContainer trackMode={onTrackPage}>
+          {onTrackPage ? <Vinyl cover={cover} /> : <Cover src={cover} />}
           <DescriptionContainer>
             <TrackName>{track}</TrackName>
             <Artist onClick={handleArtistClick}>{artist}</Artist>
           </DescriptionContainer>
-          <PlayControls src={isPlaying ? pauseSvg : playSvg} onClick={handleTogglePlay} />
-          <Range type="range" value={RangeValue} onChange={handleRangeChange} max={PLAYBACK_RANGE_MAX} />
-          <SpeakerContainer>
-            <VolumeRange onBlur={handleVolumeBlur} showVolume={showVolume} type="range" min={0} max={1} step={0.1} value={volume} onChange={handleVolumeChange} />
-            <Speaker src={speakerSvg} onClick={handleShowVolume} />
-          </SpeakerContainer>
+          <Controls>
+            <PlayControls src={isPlaying ? pauseSvg : playSvg} onClick={handleTogglePlay} />
+            <Range type="range" value={RangeValue} onChange={handleRangeChange} max={PLAYBACK_RANGE_MAX} />
+            <SpeakerContainer>
+              <VolumeRange onBlur={handleVolumeBlur} showVolume={showVolume} type="range" min={0} max={1} step={0.1} value={volume} onChange={handleVolumeChange} />
+              <Speaker src={speakerSvg} onClick={handleShowVolume} />
+            </SpeakerContainer>
+          </Controls>
         </ContentContainer>
       </PlayerContainer>
       )

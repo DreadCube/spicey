@@ -1,4 +1,6 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, {
+  useState, useCallback, useEffect,
+} from 'react';
 
 import styled from 'styled-components';
 
@@ -7,18 +9,16 @@ import {
 } from 'react-router-dom';
 
 import { LogoAlt } from './components/Logo';
-import AudioCard, { Artist } from './components/AudioCard';
+import AudioCard from './components/AudioCard';
 import SearchInput from './components/SearchInput';
 import Player from './components/Player';
 
 import useTracks from './hooks/useTracks';
 
-import { BASE_URL } from './config';
 import { Track } from './types';
 
-import followersSvg from './svgs/followers.svg';
-import trackCountSvg from './svgs/songCount.svg';
-import locationSvg from './svgs/location.svg';
+import ArtistHeader from './components/ArtistHeader';
+import Loader from './components/Loader';
 
 const Wrapper: React.FC = styled.div`
   min-height: 100vh;
@@ -78,66 +78,17 @@ const Content = styled.div`
   }
 `;
 
-const ArtistHeaderSection = styled.div`
-  height: 300px;
-  background-color: black;
-  border-radius: 0px;
-  margin-bottom: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-position: center;
-  background-size: cover;
-  background-image: url('${({ coverSrc }) => coverSrc}');
-  position: relative;
-`;
-
-const ArtistHeaderProfilePicture = styled.img`
-  height: 250px;
-  box-shadow: 0 0 10px 0px white;
-  z-index: 2;
-
-  @media only screen and (max-width: 750px) {
-    position: absolute;
-    height: 150px;
-    bottom: 0;
-    right: 0;
-    z-index: 0;
-    box-shadow: none;
-  }
-`;
-
-const ArtistHeaderDescription = styled.div`
-  max-width: 80%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-  background-color: #131313ab;
-  padding: 20px;
-  height: 160px;
-  z-index: 1;
-`;
-
-const ArtistHeaderName = styled(Artist)`
-  font-size: 50px;
-
-  @media only screen and (max-width: 750px) {
-    font-size: 25px;
-    font-weight: bold;
-  }
-`;
-
 const getTrackUrl = (location) => {
   const searchParams = new URLSearchParams(location.search);
 
   if (searchParams.has('search')) {
-    return `${BASE_URL}/v1/tracks/search?query=${searchParams.get('search')}&app_name=SPICEY`;
+    return `tracks/search?query=${searchParams.get('search')}`;
   }
   if (location.pathname.includes('artist')) {
     const [, artistId] = location.pathname.split('artist/');
-    return `${BASE_URL}/v1/users/${artistId}/tracks?app_name=SPICEY`;
+    return `/users/${artistId}/tracks`;
   }
-  return `${BASE_URL}/v1/tracks/trending?app_name=SPICEY`;
+  return '/tracks/trending';
 };
 
 function App() {
@@ -147,7 +98,7 @@ function App() {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
-  const { tracks } = useTracks(getTrackUrl(location));
+  const { tracks, isLoading } = useTracks(getTrackUrl(location));
   const [playingTrackId, setPlayingTrackId] = useState<string>(null);
   const [playlist, setPlaylist] = useState<Track[]>([]);
 
@@ -189,34 +140,10 @@ function App() {
         <SearchInput onSearch={onSearch} />
       </Header>
       <Content>
+        {isLoading && <Loader />}
         {artist
-
         && (
-        <ArtistHeaderSection coverSrc={artist.coverSrc}>
-
-          <ArtistHeaderProfilePicture src={artist.profilePictureSrc} />
-          <ArtistHeaderDescription>
-            <ArtistHeaderName>{artist.name}</ArtistHeaderName>
-
-            <div style={{ display: 'flex' }}>
-              <div style={{ display: 'flex', alignItems: 'end' }}>
-                <img src={followersSvg} style={{ width: 20, height: 20, filter: 'invert(1)' }} />
-                <Artist style={{ fontSize: 15, marginLeft: 5 }}>{artist.followers}</Artist>
-              </div>
-              <div style={{ marginLeft: 10, display: 'flex', alignItems: 'end' }}>
-                <img src={trackCountSvg} style={{ width: 20, height: 20, filter: 'invert(1)' }} />
-                <Artist style={{ fontSize: 15, marginLeft: 5 }}>{artist.trackCount}</Artist>
-              </div>
-              {artist.location
-                && (
-                <div style={{ marginLeft: 10, display: 'flex', alignItems: 'end' }}>
-                  <img src={locationSvg} style={{ width: 20, height: 20, filter: 'invert(1)' }} />
-                  <Artist style={{ fontSize: 15, marginLeft: 5 }}>{artist.location}</Artist>
-                </div>
-                )}
-            </div>
-          </ArtistHeaderDescription>
-        </ArtistHeaderSection>
+          <ArtistHeader artist={artist} />
         )}
         <TracksWrapper>
           {tracks.map((track) => (

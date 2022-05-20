@@ -8,9 +8,23 @@ import placeholderImg from '../icons/apple-touch-icon-180x180.png';
 
 const useTracks = (url: string) => {
   const [tracks, setTracks] = useState<Track[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const loadTracks = async (tracksUrl: string) => {
-    const res = await axios.get(tracksUrl);
+    setIsLoading(true);
+
+    const hosts = await axios.get('https://api.audius.co');
+
+    const host = hosts.data.data[0];
+
+    localStorage.setItem('host', host);
+
+    const res = await axios.get(tracksUrl, {
+      baseURL: `${host}/v1`,
+      params: {
+        app_name: 'SPICEY',
+      },
+    });
 
     const foundedTracks: Track[] = res.data.data.map((track) => ({
       id: track.id,
@@ -30,6 +44,7 @@ const useTracks = (url: string) => {
     }));
 
     setTracks(foundedTracks);
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -38,6 +53,7 @@ const useTracks = (url: string) => {
 
   return {
     tracks,
+    isLoading,
   };
 };
 
