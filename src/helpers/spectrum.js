@@ -61,7 +61,7 @@ const spectrum = {
         barHeight = dataArray[i];
 
         // ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
-        ctx.fillStyle = '#00ffff';
+        ctx.fillStyle = '#ff00a9';
         // ctx.fillStyle = "#000000";
         ctx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
 

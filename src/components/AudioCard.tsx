@@ -20,7 +20,7 @@ const Card = styled.div<CardProps>`
   align-items: center;
   justify-content: space-between;
   ${({ isActive }) => (isActive
-    ? `box-shadow: 0px 0px 10px 1px cyan;
+    ? `box-shadow: 0px 0px 10px 1px #ff00a9;
     .playButton {
       opacity: 1;
     }
