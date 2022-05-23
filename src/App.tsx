@@ -100,8 +100,6 @@ function App() {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
-  const [preloaded, setPreloaded] = useState(false);
-
   const { tracks, isLoading } = useTracks(getTrackUrl(location));
   const [playingTrackId, setPlayingTrackId] = useState<string>(null);
   const [playlist, setPlaylist] = useState<Track[]>([]);
@@ -150,7 +148,7 @@ function App() {
         )}
         <TracksWrapper>
 
-          {isLoading && Array(50).fill('').map((_, key) => (
+          {isLoading || 1 === 1 && Array(50).fill('').map((_, key) => (
             <CardSkeleton key={`cardSkeleton-${key}`} />
           ))}
 

@@ -3,7 +3,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 const StyledCard = styled.div`
-  width: 160px;
+  max-width: 160px;
   height: 200px;
   border-radius: 10px;
   display: flex;
