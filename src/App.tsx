@@ -148,7 +148,7 @@ function App() {
         )}
         <TracksWrapper>
 
-          {isLoading || 1 === 1 && Array(50).fill('').map((_, key) => (
+          {isLoading && Array(50).fill('').map((_, key) => (
             <CardSkeleton key={`cardSkeleton-${key}`} />
           ))}
 
