@@ -25,6 +25,12 @@ const spectrum = {
     }
 
     const canvas = canvasRef.current;
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
@@ -40,15 +46,16 @@ const spectrum = {
 
     const dataArray = new Uint8Array(bufferLength);
 
-    const WIDTH = canvas.width;
-    const HEIGHT = canvas.height;
-
-    const barWidth = (WIDTH / bufferLength) * 1.5;
     let barHeight;
     let x = 0;
 
     function renderFrame() {
       requestId = requestAnimationFrame(renderFrame);
+
+      const WIDTH = canvas.width;
+      const HEIGHT = canvas.height;
+
+      const barWidth = (WIDTH / bufferLength) * 1.5;
 
       x = 0;
 
@@ -60,9 +67,8 @@ const spectrum = {
       for (let i = 0; i < bufferLength; i++) {
         barHeight = dataArray[i];
 
-        // ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
         ctx.fillStyle = '#ff00a9';
-        // ctx.fillStyle = "#000000";
+
         ctx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
 
         x += barWidth + 1;

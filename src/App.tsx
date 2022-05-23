@@ -8,6 +8,7 @@ import {
   useNavigate, useLocation,
 } from 'react-router-dom';
 
+import axios from 'axios';
 import { LogoAlt } from './components/Logo';
 import AudioCard from './components/AudioCard';
 import SearchInput from './components/SearchInput';
@@ -19,6 +20,7 @@ import { Track } from './types';
 
 import ArtistHeader from './components/ArtistHeader';
 import Loader from './components/Loader';
+import CardSkeleton from './components/CardSkeleton';
 
 const Wrapper: React.FC = styled.div`
   min-height: 100vh;
@@ -98,6 +100,8 @@ function App() {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
+  const [preloaded, setPreloaded] = useState(false);
+
   const { tracks, isLoading } = useTracks(getTrackUrl(location));
   const [playingTrackId, setPlayingTrackId] = useState<string>(null);
   const [playlist, setPlaylist] = useState<Track[]>([]);
@@ -140,12 +144,16 @@ function App() {
         <SearchInput onSearch={onSearch} />
       </Header>
       <Content>
-        {isLoading && <Loader />}
         {artist
         && (
-          <ArtistHeader artist={artist} />
+          <ArtistHeader artist={artist} isLoading={isLoading} />
         )}
         <TracksWrapper>
+
+          {isLoading && Array(50).fill('').map((_, key) => (
+            <CardSkeleton key={`cardSkeleton-${key}`} />
+          ))}
+
           {tracks.map((track) => (
             <AudioCard
               onClick={handlePlayTrack}

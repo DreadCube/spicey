@@ -6,6 +6,15 @@ import { Track } from '../types';
 
 import placeholderImg from '../icons/apple-touch-icon-180x180.png';
 
+const selectImageSrc = (input) => {
+  const entries = Object.entries(input || {});
+
+  entries.sort((a, b) => a[0].localeCompare(b[0]));
+
+  // TODO: Better Cover Photo as placeholder
+  return entries.length ? entries[0][1] : placeholderImg;
+};
+
 const useTracks = (url: string) => {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -13,14 +22,8 @@ const useTracks = (url: string) => {
   const loadTracks = async (tracksUrl: string) => {
     setIsLoading(true);
 
-    const hosts = await axios.get('https://api.audius.co');
-
-    const host = hosts.data.data[0];
-
-    localStorage.setItem('host', host);
-
     const res = await axios.get(tracksUrl, {
-      baseURL: `${host}/v1`,
+      baseURL: `${localStorage.getItem('host')}/v1`,
       params: {
         app_name: 'SPICEY',
       },
@@ -28,15 +31,14 @@ const useTracks = (url: string) => {
 
     const foundedTracks: Track[] = res.data.data.map((track) => ({
       id: track.id,
-      artworkSrc: track.artwork['150x150'],
+      artworkSrc: selectImageSrc(track.artwork),
       trackName: track.title,
       artist: {
         id: track.user.id,
         name: track.user.name,
         isVerified: track.user.is_verified,
-        // TODO: Better Cover Photo as placeholder
-        coverSrc: track.user.cover_photo?.['2000x'] || placeholderImg,
-        profilePictureSrc: track.user.profile_picture['1000x1000'],
+        coverSrc: selectImageSrc(track.user.cover_photo),
+        profilePictureSrc: selectImageSrc(track.user.profile_picture),
         followers: track.user.follower_count,
         location: track.user.location,
         trackCount: track.user.track_count,

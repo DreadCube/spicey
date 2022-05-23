@@ -190,6 +190,7 @@ const VolumeRange = styled(Range)<VolumeRangeProps>`
   width: 100px;
   padding: 5px;
   opacity: ${({ showVolume }) => (showVolume ? '1' : '0')};
+  touch-action: none;
 `;
 
 const Cover = styled.img`

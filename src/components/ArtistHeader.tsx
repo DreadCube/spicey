@@ -18,6 +18,7 @@ const ArtistHeaderSection = styled.div`
   justify-content: center;
   background-position: center;
   background-size: cover;
+  background-color: black;
   background-image: url('${({ coverSrc }) => coverSrc}');
   position: relative;
 `;
@@ -57,7 +58,10 @@ const ArtistHeaderName = styled(Artist)`
   }
 `;
 
-function ArtistHeader({ artist }) {
+function ArtistHeader({ artist, isLoading }) {
+  if (isLoading) {
+    return <></>;
+  }
   return (
     <ArtistHeaderSection coverSrc={artist.coverSrc}>
       <ArtistHeaderProfilePicture src={artist.profilePictureSrc} />
