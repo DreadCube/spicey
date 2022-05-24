@@ -1,0 +1,5 @@
+const PLAYBACK_RANGE_MAX = 10000;
+
+export {
+  PLAYBACK_RANGE_MAX,
+};

@@ -116,7 +116,7 @@ function AudioCard({
   }, [artist.id, navigate]);
 
   const handleTrackClick = React.useCallback(() => {
-    // TODO: create track page
+
     // navigate(`/track/${id}`);
   }, [navigate, id]);
 

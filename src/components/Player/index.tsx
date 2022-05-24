@@ -6,24 +6,24 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import axios from 'axios';
 
-import { Artist, TrackName } from './AudioCard';
+import { Artist, TrackName } from '../AudioCard';
 
-import speakerSvg from '../svgs/speaker.svg';
-import playSvg from '../svgs/play.svg';
-import pauseSvg from '../svgs/pause.svg';
+import playSvg from '../../svgs/play.svg';
+import pauseSvg from '../../svgs/pause.svg';
 
-import { BASE_URL } from '../config';
-import { Track } from '../types';
-import Vinyl from './Vinyl';
-import useAudioSpectrum from '../hooks/useAudioSpectrum';
+import { Track } from '../../../types';
 
-import spectrum from '../helpers/spectrum';
+import spectrum from '../../helpers/spectrum';
+import Speaker from './Speaker';
+import TrackPositionSlider from './TrackPositionSlider';
+import { PLAYBACK_RANGE_MAX } from './constants';
+import AudioSpectrum from './AudioSpectrum';
+import Audio from './Audio';
 
-let context;
-let analyser;
-let src;
-
-const PlayerContainer = styled.div`
+interface PlayerContainerProps {
+  fullScreen: boolean
+}
+const PlayerContainer = styled.div<PlayerContainerProps>`
   width: 100%;
   height: 50px;
   background-color: #131313;
@@ -31,8 +31,52 @@ const PlayerContainer = styled.div`
   bottom: 0;
   z-index: 99;
 
-  ${({ trackMode }) => (trackMode ? `
+
+  ${({ fullScreen }) => (fullScreen ? `
+    top: 0;
     height: 100%;
+
+    > canvas {
+      position: fixed;
+
+      animation-name: grow;
+      animation-duration: 1s;
+      animation-fill-mode: forwards;
+  
+      @keyframes grow {
+        from {
+          height: 50px;
+        }
+  
+        to {
+          height: 101vh;
+          transform: scale(1, -1);
+        }
+      }
+    }
+
+    > div {
+      flex-direction: column;
+      justify-content: flex-end;
+
+      > img {
+        height: 15rem;
+        width: auto;
+        margin-right: 0px;
+      }
+      > div:first-of-type {
+        margin-bottom: 25vh;
+        margin-top: 5vh;
+      }
+
+      > div {
+        width: 100%;
+        text-align: center;
+        margin-right: 0px;
+        background-color: transparent;
+      }
+    }
+  
   ` : '')}
 `;
 
@@ -43,10 +87,6 @@ const ContentContainer = styled.div`
   justify-content: space-evenly;
   margin-left: 20px;
   margin-right: 20px;
-
-  ${({ trackMode }) => (trackMode ? `
-    flex-direction: column;
-` : '')}
 `;
 
 const DescriptionContainer = styled.div`
@@ -57,140 +97,6 @@ const DescriptionContainer = styled.div`
   width: 33%;
   background-color: rgba(0, 0, 0, 0.5);
   padding: 5px;
-`;
-
-const Range = styled.input`
-  width: 100%;
-  height: 24px;
-  -webkit-appearance: none;
-  margin: 10px 0;
-  width: 100%;
-  background: inherit;
-
-  &:focus {
-    outline: none;
-  }
-
-  &::-webkit-slider-runnable-track {
-    width: 100%;
-    height: 12px;
-    cursor: pointer;
-    animate: 0.2s;
-    box-shadow: 0px 0px 0px #00FFFF;
-    background: #000000;
-    border-radius: 50px;
-    border: 0px solid #00FFFF;
-  }
-
-
-  &::-webkit-slider-thumb {
-    box-shadow: 0px 0px 0px #000000;
-    border: 0px solid #000000;
-    height: 15px;
-    width: 15px;
-    border-radius: 23px;
-    background: #00FFFF;
-    cursor: pointer;
-    -webkit-appearance: none;
-    margin-top: -1px;
-  }
-
-
-  &:focus::-webkit-slider-runnable-track {
-    background: #000000;
-  }
-
-  &::-moz-range-track {
-    width: 100%;
-    height: 12px;
-    cursor: pointer;
-    animate: 0.2s;
-    box-shadow: 0px 0px 0px #00FFFF;
-    background: #000000;
-    border-radius: 50px;
-    border: 0px solid #00FFFF;
-  }
-
-  &::-moz-range-thumb {
-    box-shadow: 0px 0px 0px #000000;
-    border: 0px solid #000000;
-    height: 15px;
-    width: 15px;
-    border-radius: 23px;
-    background: #00FFFF;
-    cursor: pointer;
-  }
-
-  &::-ms-track {
-    width: 100%;
-    height: 12px;
-    cursor: pointer;
-    animate: 0.2s;
-    background: transparent;
-    border-color: transparent;
-    color: transparent;
-  }
-
-  &::-ms-fill-lower {
-    background: #000000;
-    border: 0px solid #00FFFF;
-    border-radius: 100px;
-    box-shadow: 0px 0px 0px #00FFFF;
-  }
-
-  &::-ms-fill-upper {
-    background: #000000;
-    border: 0px solid #00FFFF;
-    border-radius: 100px;
-    box-shadow: 0px 0px 0px #00FFFF;
-  }
-
-  &::-ms-thumb {
-    margin-top: 1px;
-    box-shadow: 0px 0px 0px #000000;
-    border: 0px solid #000000;
-    height: 15px;
-    width: 15px;
-    border-radius: 23px;
-    background: #00FFFF;
-    cursor: pointer;
-  }
-
-  &:focus::-ms-fill-lower {
-    background: #000000;
-  }
-
-  &:focus::-ms-fill-upper {
-    background: #000000;
-  }
-`;
-
-const SpeakerContainer = styled.div`
-  position: relative;
-`;
-
-const Speaker = styled.img`
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  margin-left: 20px;
-  filter: invert(1);
-  margin-top: 5px;
-`;
-
-interface VolumeRangeProps {
-  showVolume: boolean
-}
-const VolumeRange = styled(Range)<VolumeRangeProps>`
-  transform: rotate(270deg);
-  position: absolute;
-  bottom: 65px;
-  right: -45px;
-  background-color: #131313;
-  width: 100px;
-  padding: 5px;
-  opacity: ${({ showVolume }) => (showVolume ? '1' : '0')};
-  touch-action: none;
 `;
 
 const Cover = styled.img`
@@ -219,13 +125,9 @@ interface PlayerInterface {
   onPlaybackTrack: (id: string) => void
 }
 
-const PLAYBACK_RANGE_MAX = 10000;
-
 function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
   const navigate = useNavigate();
   const location = useLocation();
-
-  const onTrackPage = location.pathname.includes('/track/');
 
   const [currentTrackId, setCurrentTrackId] = useState(null);
   const [activePlaylist, setActivePlaylist] = useState([]);
@@ -249,9 +151,6 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
   const [RangeValue, setRangeValue] = useState(0);
 
   const [isPlaying, setIsPlaying] = useState(false);
-
-  const [volume, setVolume] = useState(1);
-  const [showVolume, setShowVolume] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement>();
   const canvasRef = useRef<HTMLCanvasElement>();
@@ -286,24 +185,6 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
       setCurrentTrackId(getNextTrackId());
     }
   }, [currentTrackId, getNextTrackId]);
-
-  const handleRangeChange = (e) => {
-    const { duration } = audioRef.current;
-
-    audioRef.current.currentTime = (duration / PLAYBACK_RANGE_MAX) * e.target.value;
-
-    audioRef.current.play();
-  };
-
-  const handleVolumeChange = (e) => {
-    const newVolume = e.target.value;
-    setVolume(newVolume);
-    audioRef.current.volume = newVolume;
-  };
-
-  const handleShowVolume = () => {
-    setShowVolume((prev) => !prev);
-  };
 
   const handleArtistClick = useCallback(() => {
     navigate(`/artist/${artistId}`);
@@ -400,10 +281,6 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
     });
   }, [stream]);
 
-  const handleVolumeBlur = useCallback(() => {
-    setShowVolume(false);
-  }, []);
-
   const handleTogglePlay = useCallback(() => {
     if (audioRef.current.paused) {
       audioRef.current.play();
@@ -412,41 +289,34 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
     audioRef.current.pause();
   }, []);
 
+  const handleTrackClick = useCallback(() => {
+    navigate(`/track/${currentTrackId}`);
+  }, [currentTrackId, navigate]);
+
+  if (!currentTrackId) {
+    return;
+  }
+
+  const isOnTrackPage = location.pathname.includes('/track/');
+
   return (
     <>
-      <audio crossOrigin="anonymous" style={{ display: 'none' }} ref={audioRef}>
-        <source src={stream} type="audio/ogg" />
-        <source src={stream} type="audio/mp3" />
-        <source src={stream} type="audio/mpeg" />
-      </audio>
-      {
-      currentTrackId
-      && (
-      <PlayerContainer trackMode={onTrackPage}>
-        <canvas
-          ref={canvasRef}
-          style={{
-            position: 'fixed', bottom: 0, left: 0, width: '100vw', height: 50, zIndex: -1,
-          }}
-        />
-        <ContentContainer trackMode={onTrackPage}>
-          {onTrackPage ? <Vinyl cover={cover} /> : <Cover src={cover} />}
+      <Audio stream={stream} audioRef={audioRef} />
+      <PlayerContainer fullScreen={isOnTrackPage}>
+        <AudioSpectrum canvasRef={canvasRef} />
+        <ContentContainer>
+          <Cover src={cover} />
           <DescriptionContainer>
-            <TrackName>{track}</TrackName>
+            <TrackName onClick={handleTrackClick}>{track}</TrackName>
             <Artist onClick={handleArtistClick}>{artist}</Artist>
           </DescriptionContainer>
           <Controls>
             <PlayControls src={isPlaying ? pauseSvg : playSvg} onClick={handleTogglePlay} />
-            <Range type="range" value={RangeValue} onChange={handleRangeChange} max={PLAYBACK_RANGE_MAX} />
-            <SpeakerContainer>
-              <VolumeRange onBlur={handleVolumeBlur} showVolume={showVolume} type="range" min={0} max={1} step={0.1} value={volume} onChange={handleVolumeChange} />
-              <Speaker src={speakerSvg} onClick={handleShowVolume} />
-            </SpeakerContainer>
+            <TrackPositionSlider audioRef={audioRef} position={RangeValue} />
+            <Speaker audioRef={audioRef} />
           </Controls>
         </ContentContainer>
       </PlayerContainer>
-      )
-    }
     </>
   );
 }
