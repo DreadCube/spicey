@@ -49,6 +49,7 @@ function TrackPositionSlider({
       }
 
       if (e.key === 'Delete') {
+        console.log(e.key);
         onDeleteMarkers();
       }
     };

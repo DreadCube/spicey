@@ -50,6 +50,7 @@ const spectrum = {
     let x = 0;
 
     function renderFrame() {
+      const onTrackPage = window.location.pathname.includes('/track');
       requestId = requestAnimationFrame(renderFrame);
 
       const WIDTH = canvas.width;
@@ -69,7 +70,7 @@ const spectrum = {
 
         ctx.fillStyle = '#ff00a9';
 
-        ctx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
+        ctx.fillRect(x, HEIGHT - barHeight, barWidth, (250 / barHeight) * HEIGHT);
 
         x += barWidth + 1;
       }
