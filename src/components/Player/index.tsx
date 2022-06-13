@@ -120,6 +120,15 @@ const Controls = styled.div`
   justify-content: center;
 `;
 
+const TimeText = styled.span`
+  color: white;
+  font-family: miles;
+  font-size: 12px;
+  margin-left: 10px;
+  margin-right: 10px;
+  min-width: 50px;
+`;
+
 interface PlayerInterface {
   playlist: Track[]
   onPlaybackTrack: (id: string) => void
@@ -131,6 +140,10 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
 
   const [currentTrackId, setCurrentTrackId] = useState(null);
   const [activePlaylist, setActivePlaylist] = useState([]);
+  const [trackMarkers, setTrackMarkers] = useState([]);
+
+  const [startTime, setStartTime] = useState('00:00:00');
+  const [endTime, setEndTime] = useState('00:00:00');
 
   useEffect(() => {
     if (!playlist.length) {
@@ -209,6 +222,10 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
         ? audioRef.current.currentTime
         : 0;
 
+      const startTime = new Date(currentTime * 1000).toISOString().substring(11, 19);
+      setStartTime(startTime);
+      const endTime = new Date(duration * 1000).toISOString().substring(11, 19);
+      setEndTime(endTime);
       const newRangeValue = Math.round((PLAYBACK_RANGE_MAX / duration) * currentTime);
       setRangeValue(!Number.isNaN(newRangeValue) ? newRangeValue : 0);
     };
@@ -293,6 +310,33 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
     navigate(`/track/${currentTrackId}`);
   }, [currentTrackId, navigate]);
 
+  const handleAddMarker = useCallback((percentage) => {
+    const markers = localStorage.getItem(`markers/${currentTrackId}`);
+
+    const parsedMarkers = markers ? JSON.parse(markers) : [];
+
+    const newMarkers = [
+      ...parsedMarkers,
+      percentage,
+    ];
+
+    localStorage.setItem(`markers/${currentTrackId}`, JSON.stringify(newMarkers));
+    setTrackMarkers(newMarkers);
+  }, [currentTrackId]);
+
+  const handleDeleteMarkers = useCallback(() => {
+    localStorage.removeItem(`markers/${currentTrackId}`);
+    setTrackMarkers([]);
+  }, [currentTrackId]);
+
+  useEffect(() => {
+    const markers = localStorage.getItem(`markers/${currentTrackId}`);
+
+    const parsedMarkers = markers ? JSON.parse(markers) : [];
+
+    setTrackMarkers(parsedMarkers);
+  }, [currentTrackId]);
+
   if (!currentTrackId) {
     return;
   }
@@ -311,8 +355,10 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
             <Artist onClick={handleArtistClick}>{artist}</Artist>
           </DescriptionContainer>
           <Controls>
+            <TimeText>{startTime}</TimeText>
             <PlayControls src={isPlaying ? pauseSvg : playSvg} onClick={handleTogglePlay} />
-            <TrackPositionSlider audioRef={audioRef} position={RangeValue} />
+            <TrackPositionSlider audioRef={audioRef} position={RangeValue} onAddMarker={handleAddMarker} onDeleteMarkers={handleDeleteMarkers} markers={trackMarkers} />
+            <TimeText>{endTime}</TimeText>
             <Speaker audioRef={audioRef} />
           </Controls>
         </ContentContainer>
