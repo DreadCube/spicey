@@ -8,6 +8,9 @@ interface TrackPositionSliderProps {
         current: HTMLAudioElement
     }
     position: number
+    onAddMarker: (percentage: number) => void
+    onDeleteMarkers: () => void
+    markers: number[]
 }
 
 function TrackPositionSlider({
@@ -38,7 +41,8 @@ function TrackPositionSlider({
         const markersCopy = [...markers];
         markersCopy.sort();
 
-        const nextMarker = markersCopy.find((marker) => marker > percentage) || markersCopy[0] || null;
+        const nextMarker = markersCopy.find((marker) => marker > percentage)
+          || markersCopy[0] || null;
 
         if (!nextMarker) {
           return;
@@ -48,8 +52,7 @@ function TrackPositionSlider({
         return;
       }
 
-      console.log(e.key);
-      if (e.key === 'Delete') {
+      if (e.key === 'Alt') {
         onDeleteMarkers();
       }
     };
@@ -58,14 +61,14 @@ function TrackPositionSlider({
     return () => {
       document.removeEventListener('keyup', onKeyUp);
     };
-  }, [audioRef, onAddMarker, markers]);
+  }, [audioRef, onAddMarker, markers, onDeleteMarkers]);
 
   useEffect(() => {
 
   }, [markers]);
 
   return (
-    <div style={{ position: 'relative', width: '100%' }}>
+    <div style={{ position: 'relative', width: '100%' }} className="joyride-controls-playback">
       <StyledRange
         type="range"
         value={position}
@@ -81,14 +84,16 @@ function TrackPositionSlider({
       >
         {
           markers.map((percentage) => (
-            <div style={{
-              width: '5px',
-              borderRadius: '25%',
-              height: '10px',
-              backgroundColor: '#ff00a9',
-              position: 'absolute',
-              left: `${percentage}%`,
-            }}
+            <div
+              style={{
+                width: '5px',
+                borderRadius: '25%',
+                height: '10px',
+                backgroundColor: '#ff00a9',
+                position: 'absolute',
+                left: `${percentage}%`,
+              }}
+              key={`marker-${percentage}`}
             />
           ))
         }

@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import placeholderImg from '../icons/apple-touch-icon-180x180.png';
 import isVerifiedSvg from '../svgs/verified.svg';
 import { Track } from '../types';
+import Text from './Text';
 
 interface CardProps {
   isActive: boolean
@@ -39,31 +40,6 @@ const TextWrapper = styled.div`
   height: 50px;
   justify-content: flex-end;
   width: 100%;
-`;
-
-export const TrackName = styled.span`
-  font-family: corma;
-  color: #00ffff;
-  line-height: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  cursor: pointer;
-`;
-
-export const Artist = styled.span`
-  font-family: miles;
-  text-transform: uppercase;
-  color: white;
-  line-height: 1;
-  font-size: 12px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-
-  &:hover {
-    cursor: pointer;
-  }
 `;
 
 const CoverWrapper = styled.div`
@@ -144,11 +120,11 @@ function AudioCard({
         <PlayButton className="playButton" src="https://www.svgrepo.com/show/13672/play-button.svg" />
       </CoverWrapper>
       <TextWrapper>
-        <TrackName onClick={handleTrackClick}>{trackName}</TrackName>
-        <Artist onClick={handleArtistClick}>
+        <Text type={isActive ? 'secondary' : 'primary'} onClick={handleTrackClick}>{trackName}</Text>
+        <Text onClick={handleArtistClick}>
           {artist.name}
           {artist.isVerified && <Verified src={isVerifiedSvg} />}
-        </Artist>
+        </Text>
       </TextWrapper>
     </Card>
   );

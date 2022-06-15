@@ -3,11 +3,10 @@ import React, {
 } from 'react';
 
 import { useNavigate, useLocation } from 'react-router-dom';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import axios from 'axios';
 
-import { Artist, TrackName } from '../AudioCard';
-
+import Joyride from 'react-joyride';
 import playSvg from '../../svgs/play.svg';
 import pauseSvg from '../../svgs/pause.svg';
 
@@ -19,6 +18,79 @@ import TrackPositionSlider from './TrackPositionSlider';
 import { PLAYBACK_RANGE_MAX } from './constants';
 import AudioSpectrum from './AudioSpectrum';
 import Audio from './Audio';
+import Text from '../Text';
+import { addMarker, deleteMarkers, getMarkers } from '../../helpers/markers';
+
+function Tooltip({ step, tooltipProps }) {
+  return (
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    <div
+      {...tooltipProps}
+      style={{
+        backgroundColor: 'black', padding: 20, border: '1px solid rgb(255,0,169)', borderRadius: '5px',
+      }}
+    >
+      {step.content}
+    </div>
+
+  );
+}
+
+function Content() {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <Text style={{ marginBottom: 20, fontWeight: 'bold' }}>
+        The playback line. There are some spicey controls for you:
+      </Text>
+      <Text type="secondary">
+        Spacebar:
+      </Text>
+      <Text>
+        Pause / Play the audio
+      </Text>
+
+      <div style={{ marginTop: 30, display: 'flex', flexDirection: 'column' }}>
+        <Text style={{ marginBottom: 10, fontWeight: 'bold' }}>Set some markers to skip to the favorite parts of your track!</Text>
+        <Text style={{ marginTop: 10 }} type="secondary">Enter:</Text>
+        <Text>Adds a marker at current play position</Text>
+
+        <Text style={{ marginTop: 10 }} type="secondary">Shift:</Text>
+        <Text>Jump to the next marker</Text>
+
+        <Text style={{ marginTop: 10 }} type="secondary">Alt:</Text>
+        <Text>Delete all track markers</Text>
+      </div>
+    </div>
+  );
+}
+
+const pulse = keyframes`
+  0% {
+    transform: scale(1);
+  }
+
+  55% {
+    background-color: rgba(255, 100, 100, 0.9);
+    transform: scale(1.6);
+  }
+`;
+
+const Beacon = styled.span`
+  animation: ${pulse} 1s ease-in-out infinite;
+  background-color: rgba(255, 27, 14, 0.6);
+  border-radius: 50%;
+  display: inline-block;
+  height: 3rem;
+  width: 3rem;
+`;
+
+const steps = [
+  {
+    target: '.joyride-controls-playback',
+    content: <Content />,
+    placementBeacon: 'top',
+  },
+];
 
 interface PlayerContainerProps {
   fullScreen: boolean
@@ -127,6 +199,10 @@ const TimeText = styled.span`
   margin-left: 10px;
   margin-right: 10px;
   min-width: 50px;
+
+  @media only screen and (max-width: 750px) {
+    display: none;
+  }
 `;
 
 interface PlayerInterface {
@@ -311,30 +387,30 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
   }, [currentTrackId, navigate]);
 
   const handleAddMarker = useCallback((percentage) => {
-    const markers = localStorage.getItem(`markers/${currentTrackId}`);
-
-    const parsedMarkers = markers ? JSON.parse(markers) : [];
-
-    const newMarkers = [
-      ...parsedMarkers,
-      percentage,
-    ];
-
-    localStorage.setItem(`markers/${currentTrackId}`, JSON.stringify(newMarkers));
-    setTrackMarkers(newMarkers);
+    const markers = addMarker(percentage, currentTrackId);
+    setTrackMarkers(markers);
   }, [currentTrackId]);
 
   const handleDeleteMarkers = useCallback(() => {
-    localStorage.removeItem(`markers/${currentTrackId}`);
+    deleteMarkers(currentTrackId);
     setTrackMarkers([]);
   }, [currentTrackId]);
 
   useEffect(() => {
-    const markers = localStorage.getItem(`markers/${currentTrackId}`);
+    const markers = getMarkers(currentTrackId);
+    setTrackMarkers(markers);
+  }, [currentTrackId]);
 
-    const parsedMarkers = markers ? JSON.parse(markers) : [];
+  const handleJoyrideCallback = useCallback((e) => {
+    if (e.lifecycle === 'complete') {
+      localStorage.setItem('joyride-complete', 'true');
+      const markers = getMarkers(currentTrackId);
+      setTrackMarkers(markers);
+    }
 
-    setTrackMarkers(parsedMarkers);
+    if (e.lifecycle === 'tooltip' && e.step.target === '.joyride-controls-playback') {
+      setTrackMarkers([20, 50, 80]);
+    }
   }, [currentTrackId]);
 
   if (!currentTrackId) {
@@ -345,14 +421,26 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
 
   return (
     <>
+      <Joyride
+        run={!localStorage.getItem('joyride-complete')}
+        steps={steps}
+        callback={handleJoyrideCallback}
+        tooltipComponent={Tooltip}
+        styles={{
+          options: {
+            arrowColor: 'rgb(255,0,169)',
+            primaryColor: 'cyan',
+          },
+        }}
+      />
       <Audio stream={stream} audioRef={audioRef} />
       <PlayerContainer fullScreen={isOnTrackPage}>
         <AudioSpectrum canvasRef={canvasRef} />
         <ContentContainer>
           <Cover src={cover} />
           <DescriptionContainer>
-            <TrackName onClick={handleTrackClick}>{track}</TrackName>
-            <Artist onClick={handleArtistClick}>{artist}</Artist>
+            <Text type="primary" onClick={handleTrackClick}>{track}</Text>
+            <Text onClick={handleArtistClick}>{artist}</Text>
           </DescriptionContainer>
           <Controls>
             <TimeText>{startTime}</TimeText>
