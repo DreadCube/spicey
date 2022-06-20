@@ -3,8 +3,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 interface StyledCanvasProps {
-  // TODO
-  ref: any
+  ref: Ref<HTMLCanvasElement>
 }
 const StyledCanvas = styled.canvas<StyledCanvasProps>`
   position: fixed;

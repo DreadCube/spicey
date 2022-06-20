@@ -8,7 +8,6 @@ import {
   useNavigate, useLocation,
 } from 'react-router-dom';
 
-import axios from 'axios';
 import { LogoAlt } from './components/Logo';
 import AudioCard from './components/AudioCard';
 import SearchInput from './components/SearchInput';
@@ -19,7 +18,6 @@ import useTracks from './hooks/useTracks';
 import { Track } from './types';
 
 import ArtistHeader from './components/ArtistHeader';
-import Loader from './components/Loader';
 import CardSkeleton from './components/CardSkeleton';
 
 const Wrapper: React.FC = styled.div`
@@ -149,10 +147,10 @@ function App() {
         <TracksWrapper>
 
           {isLoading && Array(50).fill('').map((_, key) => (
-            <CardSkeleton key={`cardSkeleton-${key}`} />
+            <CardSkeleton key={`cardSkeleton-${key}`} delay={key * 100} />
           ))}
 
-          {tracks.map((track) => (
+          {!isLoading && tracks.map((track) => (
             <AudioCard
               onClick={handlePlayTrack}
               key={track.id}

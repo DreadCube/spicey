@@ -4,20 +4,20 @@ interface TextProps {
     type?: 'primary' | 'secondary'
 }
 const Text = styled.span<TextProps>`
-    line-height: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
-    &:hover {
-        cursor: pointer;
-    }
+  &:hover {
+      cursor: pointer;
+  }
 
-    ${({ type = 'default' }) => {
+  ${({ type = 'default' }) => {
     switch (type) {
       case 'primary':
         return `
-            font-family: corma;
+            font-family: corma; 
             color: #00ffff;
         `;
 

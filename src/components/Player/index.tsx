@@ -3,10 +3,8 @@ import React, {
 } from 'react';
 
 import { useNavigate, useLocation } from 'react-router-dom';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import axios from 'axios';
-
-import Joyride from 'react-joyride';
 import playSvg from '../../svgs/play.svg';
 import pauseSvg from '../../svgs/pause.svg';
 
@@ -21,76 +19,7 @@ import Audio from './Audio';
 import Text from '../Text';
 import { addMarker, deleteMarkers, getMarkers } from '../../helpers/markers';
 
-function Tooltip({ step, tooltipProps }) {
-  return (
-    // eslint-disable-next-line react/jsx-props-no-spreading
-    <div
-      {...tooltipProps}
-      style={{
-        backgroundColor: 'black', padding: 20, border: '1px solid rgb(255,0,169)', borderRadius: '5px',
-      }}
-    >
-      {step.content}
-    </div>
-
-  );
-}
-
-function Content() {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
-      <Text style={{ marginBottom: 20, fontWeight: 'bold' }}>
-        The playback line. There are some spicey controls for you:
-      </Text>
-      <Text type="secondary">
-        Spacebar:
-      </Text>
-      <Text>
-        Pause / Play the audio
-      </Text>
-
-      <div style={{ marginTop: 30, display: 'flex', flexDirection: 'column' }}>
-        <Text style={{ marginBottom: 10, fontWeight: 'bold' }}>Set some markers to skip to the favorite parts of your track!</Text>
-        <Text style={{ marginTop: 10 }} type="secondary">Enter:</Text>
-        <Text>Adds a marker at current play position</Text>
-
-        <Text style={{ marginTop: 10 }} type="secondary">Shift:</Text>
-        <Text>Jump to the next marker</Text>
-
-        <Text style={{ marginTop: 10 }} type="secondary">Alt:</Text>
-        <Text>Delete all track markers</Text>
-      </div>
-    </div>
-  );
-}
-
-const pulse = keyframes`
-  0% {
-    transform: scale(1);
-  }
-
-  55% {
-    background-color: rgba(255, 100, 100, 0.9);
-    transform: scale(1.6);
-  }
-`;
-
-const Beacon = styled.span`
-  animation: ${pulse} 1s ease-in-out infinite;
-  background-color: rgba(255, 27, 14, 0.6);
-  border-radius: 50%;
-  display: inline-block;
-  height: 3rem;
-  width: 3rem;
-`;
-
-const steps = [
-  {
-    target: '.joyride-controls-playback',
-    content: <Content />,
-    placementBeacon: 'top',
-  },
-];
+import Tooltip from './Tooltip';
 
 interface PlayerContainerProps {
   fullScreen: boolean
@@ -298,10 +227,10 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
         ? audioRef.current.currentTime
         : 0;
 
-      const startTime = new Date(currentTime * 1000).toISOString().substring(11, 19);
-      setStartTime(startTime);
-      const endTime = new Date(duration * 1000).toISOString().substring(11, 19);
-      setEndTime(endTime);
+      const sTime = new Date(currentTime * 1000).toISOString().substring(11, 19);
+      setStartTime(sTime);
+      const eTime = new Date(duration * 1000).toISOString().substring(11, 19);
+      setEndTime(eTime);
       const newRangeValue = Math.round((PLAYBACK_RANGE_MAX / duration) * currentTime);
       setRangeValue(!Number.isNaN(newRangeValue) ? newRangeValue : 0);
     };
@@ -421,18 +350,7 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
 
   return (
     <>
-      <Joyride
-        run={!localStorage.getItem('joyride-complete')}
-        steps={steps}
-        callback={handleJoyrideCallback}
-        tooltipComponent={Tooltip}
-        styles={{
-          options: {
-            arrowColor: 'rgb(255,0,169)',
-            primaryColor: 'cyan',
-          },
-        }}
-      />
+      <Tooltip callback={handleJoyrideCallback} />
       <Audio stream={stream} audioRef={audioRef} />
       <PlayerContainer fullScreen={isOnTrackPage}>
         <AudioSpectrum canvasRef={canvasRef} />
@@ -445,7 +363,13 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
           <Controls>
             <TimeText>{startTime}</TimeText>
             <PlayControls src={isPlaying ? pauseSvg : playSvg} onClick={handleTogglePlay} />
-            <TrackPositionSlider audioRef={audioRef} position={RangeValue} onAddMarker={handleAddMarker} onDeleteMarkers={handleDeleteMarkers} markers={trackMarkers} />
+            <TrackPositionSlider
+              audioRef={audioRef}
+              position={RangeValue}
+              onAddMarker={handleAddMarker}
+              onDeleteMarkers={handleDeleteMarkers}
+              markers={trackMarkers}
+            />
             <TimeText>{endTime}</TimeText>
             <Speaker audioRef={audioRef} />
           </Controls>

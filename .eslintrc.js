@@ -27,5 +27,9 @@ module.exports = {
     'jsx-a11y/media-has-caption': 'off',
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'error',
+    'import/extensions': 'off',
+    'import/no-unresolved': 'off',
+    'react/prop-types': 'off',
+    'react/require-default-props': 'off',
   },
 };

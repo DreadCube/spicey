@@ -7,8 +7,12 @@ import trackCountSvg from '../svgs/songCount.svg';
 import locationSvg from '../svgs/location.svg';
 
 import Text from './Text';
+import { Artist } from '../types';
 
-const ArtistHeaderSection = styled.div`
+interface ArtistHeaderSectionProps {
+  coverSrc: Artist['coverSrc']
+}
+const ArtistHeaderSection = styled.div<ArtistHeaderSectionProps>`
   height: 300px;
   background-color: black;
   border-radius: 0px;
@@ -58,9 +62,37 @@ const ArtistHeaderName = styled(Text)`
   }
 `;
 
-function ArtistHeader({ artist, isLoading }) {
+const InfoText = styled(Text)`
+  font-size: 15px;
+  margin-left: 5px;
+`;
+
+const InfoTextIcon = styled.img`
+  width: 20px;
+  height: 20px;
+  filter: invert(1);
+`;
+
+const InfoTextWrapper = styled.div`
+  display: flex;
+  align-items: end;
+
+  &:not(:first-child) {
+    margin-left: 10px;
+  }
+`;
+
+const InfoTextMainWrapper = styled.div`
+  display: flex;
+`;
+
+interface ArtistHeaderProps {
+  artist: Artist
+  isLoading: boolean
+}
+function ArtistHeader({ artist, isLoading }: ArtistHeaderProps) {
   if (isLoading) {
-    return <></>;
+    return null;
   }
   return (
     <ArtistHeaderSection coverSrc={artist.coverSrc}>
@@ -68,23 +100,23 @@ function ArtistHeader({ artist, isLoading }) {
       <ArtistHeaderDescription>
         <ArtistHeaderName>{artist.name}</ArtistHeaderName>
 
-        <div style={{ display: 'flex' }}>
-          <div style={{ display: 'flex', alignItems: 'end' }}>
-            <img src={followersSvg} style={{ width: 20, height: 20, filter: 'invert(1)' }} />
-            <Text style={{ fontSize: 15, marginLeft: 5 }}>{artist.followers}</Text>
-          </div>
-          <div style={{ marginLeft: 10, display: 'flex', alignItems: 'end' }}>
-            <img src={trackCountSvg} style={{ width: 20, height: 20, filter: 'invert(1)' }} />
-            <Text style={{ fontSize: 15, marginLeft: 5 }}>{artist.trackCount}</Text>
-          </div>
+        <InfoTextMainWrapper>
+          <InfoTextWrapper>
+            <InfoTextIcon src={followersSvg} />
+            <InfoText>{artist.followers}</InfoText>
+          </InfoTextWrapper>
+          <InfoTextWrapper>
+            <InfoTextIcon src={trackCountSvg} />
+            <InfoText>{artist.trackCount}</InfoText>
+          </InfoTextWrapper>
           {artist.location
             && (
-            <div style={{ marginLeft: 10, display: 'flex', alignItems: 'end' }}>
-              <img src={locationSvg} style={{ width: 20, height: 20, filter: 'invert(1)' }} />
-              <Text style={{ fontSize: 15, marginLeft: 5 }}>{artist.location}</Text>
-            </div>
+            <InfoTextWrapper>
+              <InfoTextIcon src={locationSvg} />
+              <InfoText>{artist.location}</InfoText>
+            </InfoTextWrapper>
             )}
-        </div>
+        </InfoTextMainWrapper>
       </ArtistHeaderDescription>
     </ArtistHeaderSection>
   );

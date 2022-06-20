@@ -1,18 +1,45 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
+
+import styled from 'styled-components';
+
 import { PLAYBACK_RANGE_MAX } from './constants';
 
 import StyledRange from './StyledRange';
 
-interface TrackPositionSliderProps {
-    audioRef: {
-        current: HTMLAudioElement
-    }
-    position: number
-    onAddMarker: (percentage: number) => void
-    onDeleteMarkers: () => void
-    markers: number[]
+const TrackPositionSliderWrapper = styled.div`
+  position: relative;
+  width: 100%;
+`;
+
+const MarkersWrapper = styled.div`
+  position: absolute;
+  z-index: 1;
+  top: 5px;
+  width: 100%;
+`;
+
+interface MarkerProps {
+  percentage: number
 }
 
+const Marker = styled.div<MarkerProps>`
+  width: 5px;
+  border-radius: 25%;
+  height: 10px;
+  background-color: #ff00a9;
+  position: absolute;
+  left: ${({ percentage = 0 }) => percentage}%;
+`;
+
+interface TrackPositionSliderProps {
+  audioRef: {
+    current: HTMLAudioElement
+  }
+  position: number
+  onAddMarker: (percentage: number) => void
+  onDeleteMarkers: () => void
+  markers: number[]
+}
 function TrackPositionSlider({
   audioRef, position, onAddMarker, onDeleteMarkers, markers = [],
 }: TrackPositionSliderProps) {
@@ -68,37 +95,24 @@ function TrackPositionSlider({
   }, [markers]);
 
   return (
-    <div style={{ position: 'relative', width: '100%' }} className="joyride-controls-playback">
+    <TrackPositionSliderWrapper className="joyride-controls-playback">
       <StyledRange
         type="range"
         value={position}
         onChange={handleChange}
         max={PLAYBACK_RANGE_MAX}
       />
-      <div style={{
-        position: 'absolute',
-        zIndex: 1,
-        top: '5px',
-        width: '100%',
-      }}
-      >
+      <MarkersWrapper>
         {
           markers.map((percentage) => (
-            <div
-              style={{
-                width: '5px',
-                borderRadius: '25%',
-                height: '10px',
-                backgroundColor: '#ff00a9',
-                position: 'absolute',
-                left: `${percentage}%`,
-              }}
+            <Marker
+              percentage={percentage}
               key={`marker-${percentage}`}
             />
           ))
         }
-      </div>
-    </div>
+      </MarkersWrapper>
+    </TrackPositionSliderWrapper>
   );
 }
 

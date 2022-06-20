@@ -2,7 +2,10 @@ import React from 'react';
 
 import styled from 'styled-components';
 
-const StyledCard = styled.div`
+interface SkeletonProps {
+  delay: number
+}
+const Skeleton = styled.div<SkeletonProps>`
   max-width: 160px;
   height: 200px;
   border-radius: 10px;
@@ -14,6 +17,7 @@ const StyledCard = styled.div`
 
   animation-name: pulse;
   animation-duration: 3s;
+  animation-delay: ${({ delay }) => delay}ms;
   animation-iteration-count: infinite;
 
   @keyframes pulse {
@@ -40,12 +44,15 @@ const Text = styled.div`
   height: 30px;
 `;
 
-function CardSkeleton() {
+interface CardSkeletonProps {
+  delay?: number
+}
+function CardSkeleton({ delay = 0 }: CardSkeletonProps) {
   return (
-    <StyledCard>
+    <Skeleton delay={delay}>
       <Image />
       <Text />
-    </StyledCard>
+    </Skeleton>
   );
 }
 
