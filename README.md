@@ -1,6 +1,8 @@
 # spicey
 An Audius music player, built with the Audius API
 
+https://www.spicey.app
+
 ![Main](./screenshotA.png)
 <br />
 <br />
