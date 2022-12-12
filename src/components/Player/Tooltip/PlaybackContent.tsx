@@ -46,13 +46,13 @@ export default function PlaybackContent() {
         <PlaybackMarkersTitle>
           Set some markers to skip to the favorite parts of your track!
         </PlaybackMarkersTitle>
-        <PlaybackMarkersTextWithMargin type="secondary">Enter:</PlaybackMarkersTextWithMargin>
+        <PlaybackMarkersTextWithMargin type="secondary">1:</PlaybackMarkersTextWithMargin>
         <Text>Adds a marker at current play position</Text>
 
-        <PlaybackMarkersTextWithMargin type="secondary">Shift:</PlaybackMarkersTextWithMargin>
+        <PlaybackMarkersTextWithMargin type="secondary">2:</PlaybackMarkersTextWithMargin>
         <Text>Jump to the next marker</Text>
 
-        <PlaybackMarkersTextWithMargin type="secondary">Alt:</PlaybackMarkersTextWithMargin>
+        <PlaybackMarkersTextWithMargin type="secondary">3:</PlaybackMarkersTextWithMargin>
         <Text>Delete all track markers</Text>
       </PlaybackMarkersWrapper>
     </PlaybackContentWrapper>

@@ -54,13 +54,13 @@ function TrackPositionSlider({
 
   useEffect(() => {
     const onKeyUp = (e) => {
-      if (e.key === 'Enter') {
+      if (e.keyCode === 49) {
         const percentage = (100 / audioRef.current.duration) * audioRef.current.currentTime;
         onAddMarker(percentage);
         return;
       }
 
-      if (e.key === 'Shift') {
+      if (e.keyCode === 50) {
         e.stopPropagation();
 
         const percentage = (100 / audioRef.current.duration) * audioRef.current.currentTime;
@@ -79,7 +79,7 @@ function TrackPositionSlider({
         return;
       }
 
-      if (e.key === 'Alt') {
+      if (e.keyCode === 51) {
         onDeleteMarkers();
       }
     };
