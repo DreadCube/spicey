@@ -39,41 +39,27 @@ const FrameAlt = styled.div`
 
 const Easter = styled.div`
   display: inline-block;
-  transform-origin: bottom;
 
   @keyframes easteregg {
     0% {
-      transform: rotate(-5deg);
+      opacity: 1;
+      width: 40px;
     }
-
-    25% {
-      transform: rotate(5deg);
-    }
-
     50% {
-      transform: translateY(0px) rotate(-20deg);
-      
+      opacity: 0.5;
+      width: 40px;
     }
-
-    80% {
-      transform: translateY(100vh) rotate(-90deg);
-    }
-
-    81% {
-      transform: translateY(-100px) rotate(-90deg);
-    }
-
     100% {
-      translateY(-60px) rotate(-90deg);
+      opacity: 0;
+      width: 0px;
     }
   }
 
 
   &:hover {
-    animation-iteration-count: 1;
     animation-name: easteregg;
-    animation-duration: 2s;
-    animation-fill-mode: none;
+    animation-duration: 1s;
+    animation-fill-mode: forwards;
     animation-timing-function: ease-in;
   }
 `;
