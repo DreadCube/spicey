@@ -45,7 +45,13 @@ const useTracks = (url: string) => {
       },
     }));
 
-    setTracks(foundedTracks);
+    if (location.pathname.includes('artist')) {
+      const withCachedTracks = await loadArtistImages(foundedTracks)
+      setTracks(withCachedTracks)
+    } else {
+      setTracks(foundedTracks);
+    }
+
     setIsLoading(false);
   };
 
@@ -58,5 +64,47 @@ const useTracks = (url: string) => {
     isLoading,
   };
 };
+
+const loadArtistImages = async (tracks: Track[] = []) => {
+  const cache = {}
+  const formattedTracks = []
+
+  for (const track of tracks) {
+    console.log(cache)
+    if (!cache[track.artist.id]) {
+      const coverSrc = await fetchToBase64(track.artist.coverSrc)
+      const profilePictureSrc = await fetchToBase64(track.artist.profilePictureSrc)
+
+      cache[track.artist.id] = {
+        coverSrc,
+        profilePictureSrc
+      }
+    }
+
+    formattedTracks.push({
+      ...track,
+      artist: {
+        ...track.artist,
+        ...cache[track.artist.id]
+      }
+    })
+  }
+
+  return formattedTracks
+}
+
+const fetchToBase64 = async (src) => {
+  const base64 = await new Promise(async resolve => {
+    const res = await fetch(src)
+    const blob = await res.blob()
+    const reader = new FileReader()
+    reader.onload = result => {
+      resolve(result.target.result)
+    }
+    reader.readAsDataURL(blob)
+  })
+
+  return base64
+}
 
 export default useTracks;
