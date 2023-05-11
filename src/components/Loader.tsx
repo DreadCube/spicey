@@ -6,10 +6,8 @@ import Logo from './Logo';
 
 const StyledSpinner = styled.svg`
     animation: rotate 2s linear infinite;
-    width: 25px;
-    height: 25px;
-
-    margin-top: 25px;
+    width: ${({ size }) => size}px;
+    height: ${({ size }) => size}px;
     
     & .path {
       stroke: #00ffff;
@@ -38,9 +36,9 @@ const StyledSpinner = styled.svg`
     }
   `;
 
-function Spinner() {
+export function Spinner({ size = 25 }) {
   return (
-    <StyledSpinner viewBox="0 0 50 50">
+    <StyledSpinner viewBox="0 0 50 50" size={size}>
       <circle
         className="path"
         cx="25"
@@ -66,6 +64,7 @@ function Loader() {
       alignItems: 'center',
       justifyContent: 'center',
       flexDirection: 'column',
+      marginBottom: 25,
     }}
     >
       <Logo />
