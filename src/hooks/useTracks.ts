@@ -70,7 +70,6 @@ const loadArtistImages = async (tracks: Track[] = []) => {
   const formattedTracks = []
 
   for (const track of tracks) {
-    console.log(cache)
     if (!cache[track.artist.id]) {
       const coverSrc = await fetchToBase64(track.artist.coverSrc)
       const profilePictureSrc = await fetchToBase64(track.artist.profilePictureSrc)
