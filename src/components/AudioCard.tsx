@@ -3,10 +3,10 @@ import styled from 'styled-components';
 
 import { useNavigate } from 'react-router-dom';
 
-import placeholderImg from '../icons/apple-touch-icon-180x180.png';
 import isVerifiedSvg from '../svgs/verified.svg';
 import { Track } from '../types';
 import Text from './Text';
+import { Spinner } from './Loader';
 
 interface CardProps {
   isActive: boolean
@@ -26,12 +26,28 @@ const Card = styled.div<CardProps>`
       opacity: 1;
     }
     ` : '')}
+
+   @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(250px);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateY(0px);
+    }
+   }
+    animation: fadeIn 1s;
 `;
 
-const Cover = styled.img`
+const Cover = styled.div`
   border-radius: 10px;
   box-shadow: 0px 0px 10px #000000;
   max-width: 150px;
+  background-image: url("${({ src }) => src}");
+  width: 150px;
+  height: 150px;
 `;
 
 const TextWrapper = styled.div`
@@ -75,6 +91,14 @@ interface AudioCardInterface extends Track {
   onClick: (id: string) => void
 }
 
+const SpinnerWrapper = styled.div`
+  width: 150px;
+  height: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
 function AudioCard({
   artworkSrc, trackName, artist, id, onClick, isActive,
 }: AudioCardInterface) {
@@ -115,10 +139,20 @@ function AudioCard({
 
   return (
     <Card isActive={isActive}>
-      <CoverWrapper onClick={handleClick}>
-        <Cover src={!coverLoaded ? placeholderImg : artworkSrc} />
-        <PlayButton className="playButton" src="https://www.svgrepo.com/show/13672/play-button.svg" />
-      </CoverWrapper>
+      {
+        coverLoaded
+          ? (
+            <CoverWrapper onClick={handleClick}>
+              <Cover src={artworkSrc} />
+              <PlayButton className="playButton" src="https://www.svgrepo.com/show/13672/play-button.svg" />
+            </CoverWrapper>
+          )
+          : (
+            <SpinnerWrapper>
+              <Spinner />
+            </SpinnerWrapper>
+          )
+      }
       <TextWrapper>
         <Text type={isActive ? 'secondary' : 'primary'} onClick={handleTrackClick}>{trackName}</Text>
         <Text onClick={handleArtistClick}>
