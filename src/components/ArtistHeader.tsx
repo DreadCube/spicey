@@ -25,6 +25,27 @@ const ArtistHeaderSection = styled.div<ArtistHeaderSectionProps>`
   background-color: black;
   background-image: url('${({ coverSrc }) => coverSrc}');
   position: relative;
+
+
+  @keyframes popOut {
+    0% {
+      opacity: 0;
+      height: 100vh;
+    }
+
+
+    50% {
+      height: 100vh;
+    }
+
+    100% {
+      opacity: 1;
+      height: 300px;
+    }
+  }
+
+  animation: popOut 6s;
+
 `;
 
 const ArtistHeaderProfilePicture = styled.img`
