@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
+import { Spinner } from './Loader';
 
 const Search = styled.input`
   height: 20px;
@@ -9,12 +10,19 @@ const Search = styled.input`
   border: 1px solid black;
   border-radius: 10px;
   padding-left: 10px;
+  margin-right: 10px;
+`;
+
+const SearchWrapper = styled.div`
+  display: flex;
+  align-items: center;
 `;
 
 interface SearchInputProps {
   onSearch: (value: string) => void
+  isLoading: boolean
 }
-function SearchInput({ onSearch }: SearchInputProps) {
+function SearchInput({ onSearch, isLoading }: SearchInputProps) {
   const [value, setValue] = useState('');
   const [nextValue, setNextValue] = useState('');
 
@@ -37,7 +45,10 @@ function SearchInput({ onSearch }: SearchInputProps) {
   }, []);
 
   return (
-    <Search type="text" placeholder="Search..." onChange={onChange} value={nextValue} />
+    <SearchWrapper>
+      <Search type="text" placeholder="Search..." onChange={onChange} value={nextValue} />
+      {isLoading && <Spinner size={20} />}
+    </SearchWrapper>
   );
 }
 
