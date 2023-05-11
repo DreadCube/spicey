@@ -19,6 +19,7 @@ import { Track } from './types';
 
 import ArtistHeader from './components/ArtistHeader';
 import CardSkeleton from './components/CardSkeleton';
+import { Spinner } from './components/Loader';
 
 const Wrapper: React.FC = styled.div`
   min-height: 100vh;
@@ -137,19 +138,15 @@ function App() {
         <LogoWrapper>
           <LogoAlt />
         </LogoWrapper>
-        <SearchInput onSearch={onSearch} />
+        <SearchInput onSearch={onSearch} isLoading={isLoading} />
       </Header>
       <Content>
         {artist
         && (
           <ArtistHeader artist={artist} isLoading={isLoading} />
         )}
+
         <TracksWrapper>
-
-          {isLoading && Array(50).fill('').map((_, key) => (
-            <CardSkeleton key={`cardSkeleton-${key}`} delay={key * 100} />
-          ))}
-
           {!isLoading && tracks.map((track) => (
             <AudioCard
               onClick={handlePlayTrack}
