@@ -27,7 +27,10 @@ const Card = styled.div<CardProps>`
     }
     ` : '')}
 
-   @keyframes fadeIn {
+
+  opacity: 0;
+
+  @keyframes fadeIn {
     0% {
       opacity: 0;
       transform: translateY(250px);
@@ -37,8 +40,11 @@ const Card = styled.div<CardProps>`
       opacity: 1;
       transform: translateY(0px);
     }
-   }
-    animation: fadeIn 1s;
+  }
+
+  animation: fadeIn 1s;
+  animation-delay: ${({ entryDelay }) => entryDelay}ms;
+  animation-fill-mode: forwards;
 `;
 
 const Cover = styled.div`
@@ -89,6 +95,7 @@ const Verified = styled.img`
 interface AudioCardInterface extends Track {
   isActive: boolean
   onClick: (id: string) => void
+  entryDelay?: number
 }
 
 const SpinnerWrapper = styled.div`
@@ -101,6 +108,7 @@ const SpinnerWrapper = styled.div`
 
 function AudioCard({
   artworkSrc, trackName, artist, id, onClick, isActive,
+  entryDelay = 0,
 }: AudioCardInterface) {
   const navigate = useNavigate();
 
@@ -138,7 +146,7 @@ function AudioCard({
   }, [artworkSrc]);
 
   return (
-    <Card isActive={isActive}>
+    <Card isActive={isActive} entryDelay={entryDelay}>
       {
         coverLoaded
           ? (

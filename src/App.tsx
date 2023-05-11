@@ -147,7 +147,7 @@ function App() {
         )}
 
         <TracksWrapper>
-          {!isLoading && tracks.map((track) => (
+          {!isLoading && tracks.map((track, index) => (
             <AudioCard
               onClick={handlePlayTrack}
               key={track.id}
@@ -156,6 +156,7 @@ function App() {
               trackName={track.trackName}
               artist={track.artist}
               isActive={playingTrackId === track.id}
+              entryDelay={index * 50}
             />
           ))}
         </TracksWrapper>
