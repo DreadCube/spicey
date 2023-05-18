@@ -134,9 +134,8 @@ function AudioCard({
   }, [user.id, navigate]);
 
   const handleTrackClick = React.useCallback(() => {
-
-    // navigate(`/track/${id}`);
-  }, []);
+    onClick(id);
+  }, [id, onClick]);
 
   React.useEffect(() => {
     setCoverLoaded(false);
