@@ -11,9 +11,9 @@ import { usePlaylist } from '../providers/PlaylistProvider';
 function SearchContainer() {
   const { search } = useParams();
 
-  const { data: tracks, isInitialLoading } = useQuery(['search', search], () => audius.searchTracks({
+  const { data: tracks = [] } = useQuery(['search', search], () => audius.searchTracks({
     query: search,
-  }));
+  }), { keepPreviousData: true });
 
   const { playingTrack, play } = usePlaylist();
 
@@ -23,7 +23,7 @@ function SearchContainer() {
 
   return (
     <TracksWrapper>
-      {!isInitialLoading && tracks.map((track, index) => (
+      {tracks.map((track, index) => (
         <AudioCard
           {...track}
           onClick={handlePlayTrack}

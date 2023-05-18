@@ -13,7 +13,7 @@ function ArtistContainer() {
   const { artistId } = useParams();
 
   const { data: artist, isInitialLoading } = useQuery(['artist', artistId], () => audius.getUser(artistId));
-  const { data: tracks, isInitialLoading: isLoadingTracks } = useQuery(['artist/tracks', artistId], () => audius.getTracksByUser(artistId), { enabled: !isInitialLoading });
+  const { data: tracks = [] } = useQuery(['artist/tracks', artistId], () => audius.getTracksByUser(artistId), { enabled: !isInitialLoading });
 
   const { playingTrack, play } = usePlaylist();
 
@@ -28,7 +28,7 @@ function ArtistContainer() {
     <>
       <ArtistHeader artist={artist} />
       <TracksWrapper>
-        {!isLoadingTracks && tracks.map((track, index) => (
+        {tracks.map((track, index) => (
           <AudioCard
             {...track}
             onClick={handlePlayTrack}

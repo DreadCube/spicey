@@ -16,7 +16,6 @@ interface CardProps {
 }
 
 const Card = styled.div<CardProps>`
-  display: block;
   background-color: #131313;
   padding: 10px;
   border-radius: 10px;
@@ -25,8 +24,12 @@ const Card = styled.div<CardProps>`
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
+  z-index: 1;
+
   ${({ isActive }) => (isActive
-    ? `box-shadow: 0px 0px 10px 1px #ff00a9;
+    ? `
+      box-shadow: 0px 0px 10px 1px #ff00a9;
+      z-index: 0;
     .playButton {
       opacity: 1;
     }

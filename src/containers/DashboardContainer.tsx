@@ -8,7 +8,7 @@ import AudioCard from '../components/AudioCard';
 import { usePlaylist } from '../providers/PlaylistProvider';
 
 function DashboardContainer() {
-  const { data: tracks, isInitialLoading } = useQuery(['dashboard'], () => audius.getTrendingTracks());
+  const { data: tracks = [] } = useQuery(['dashboard'], () => audius.getTrendingTracks());
 
   const { playingTrack, play } = usePlaylist();
 
@@ -18,7 +18,7 @@ function DashboardContainer() {
 
   return (
     <TracksWrapper>
-      {!isInitialLoading && tracks.map((track, index) => (
+      {tracks.map((track, index) => (
         <AudioCard
           {...track}
           onClick={handlePlayTrack}
