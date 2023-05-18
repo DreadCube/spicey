@@ -168,6 +168,9 @@ function AudioCard({
     const applyBoxShadow = ({ data }) => {
       const boxShadow = data.reduce((acc, curr) => acc + curr, 0) / data.length / 2;
 
+      if (!cardRef?.current) {
+        return;
+      }
       cardRef.current.style.boxShadow = `0px 0px ${boxShadow}px 1px #ff00a9`;
     };
 
