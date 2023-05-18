@@ -8,6 +8,7 @@ import locationSvg from '../svgs/location.svg';
 
 import Text from './Text';
 import { Artist } from '../types';
+import { User } from '../helpers/audius/types';
 
 interface ArtistHeaderSectionProps {
   coverSrc: Artist['coverSrc']
@@ -108,27 +109,23 @@ const InfoTextMainWrapper = styled.div`
 `;
 
 interface ArtistHeaderProps {
-  artist: Artist
-  isLoading: boolean
+  artist: User
 }
-function ArtistHeader({ artist, isLoading }: ArtistHeaderProps) {
-  if (isLoading) {
-    return null;
-  }
+function ArtistHeader({ artist }: ArtistHeaderProps) {
   return (
-    <ArtistHeaderSection coverSrc={artist.coverSrc}>
-      <ArtistHeaderProfilePicture src={artist.profilePictureSrc} />
+    <ArtistHeaderSection coverSrc={artist.coverPhoto?._2000x || ''}>
+      <ArtistHeaderProfilePicture src={artist.profilePicture?._480x480} />
       <ArtistHeaderDescription>
         <ArtistHeaderName>{artist.name}</ArtistHeaderName>
 
         <InfoTextMainWrapper>
           <InfoTextWrapper>
             <InfoTextIcon src={followersSvg} />
-            <InfoText>{artist.followers}</InfoText>
+            <InfoText>{artist.follower_count}</InfoText>
           </InfoTextWrapper>
           <InfoTextWrapper>
             <InfoTextIcon src={trackCountSvg} />
-            <InfoText>{artist.trackCount}</InfoText>
+            <InfoText>{artist.track_count}</InfoText>
           </InfoTextWrapper>
           {artist.location
             && (

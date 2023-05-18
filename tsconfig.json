@@ -3,5 +3,7 @@
         "jsx": "react",
         "target": "ES2016",
         "lib": ["ES2021", "DOM"],
+        "moduleResolution": "node",
+        "allowSyntheticDefaultImports": true
     }
 }

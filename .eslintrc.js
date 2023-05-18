@@ -31,5 +31,7 @@ module.exports = {
     'import/no-unresolved': 'off',
     'react/prop-types': 'off',
     'react/require-default-props': 'off',
+    'react/jsx-props-no-spreading': 'off',
+    'no-underscore-dangle': 'off',
   },
 };

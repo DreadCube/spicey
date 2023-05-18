@@ -12,12 +12,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@audius/sdk": "^2.0.3-beta.18",
+    "@tanstack/react-query": "^4.29.5",
     "axios": "^0.26.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-joyride": "^2.5.3",
-    "react-router-dom": "^6.3.0",
-    "styled-components": "^5.3.5"
+    "react-router-dom": "^6.11.1",
+    "styled-components": "^5.3.5",
+    "web3": "^1.10.0"
   },
   "devDependencies": {
     "@types/node": "^18.0.0",
@@ -32,6 +35,7 @@
     "eslint-plugin-jsx-a11y": "^6.5.1",
     "eslint-plugin-react": "^7.29.4",
     "eslint-plugin-react-hooks": "^4.4.0",
+    "events": "^3.3.0",
     "parcel": "^2.4.1",
     "process": "^0.11.10"
   },

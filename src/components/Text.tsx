@@ -10,7 +10,7 @@ const Text = styled.span<TextProps>`
   text-overflow: ellipsis;
 
   &:hover {
-      cursor: pointer;
+    cursor: pointer;
   }
 
   ${({ type = 'default' }) => {

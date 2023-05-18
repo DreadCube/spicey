@@ -50,7 +50,6 @@ const spectrum = {
     let x = 0;
 
     function renderFrame() {
-      const onTrackPage = window.location.pathname.includes('/track');
       requestId = requestAnimationFrame(renderFrame);
 
       const WIDTH = canvas.width;
@@ -61,6 +60,8 @@ const spectrum = {
       x = 0;
 
       analyser.getByteFrequencyData(dataArray);
+
+      postMessage(dataArray);
 
       ctx.fillStyle = 'rgba(19, 19, 19, 1)';
       ctx.fillRect(0, 0, WIDTH, HEIGHT);

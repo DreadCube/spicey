@@ -1,3 +1,4 @@
+import { useIsFetching } from '@tanstack/react-query';
 import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { Spinner } from './Loader';
@@ -20,11 +21,12 @@ const SearchWrapper = styled.div`
 
 interface SearchInputProps {
   onSearch: (value: string) => void
-  isLoading: boolean
 }
-function SearchInput({ onSearch, isLoading }: SearchInputProps) {
+function SearchInput({ onSearch }: SearchInputProps) {
   const [value, setValue] = useState('');
   const [nextValue, setNextValue] = useState('');
+
+  const isFetching = useIsFetching();
 
   React.useEffect(() => {
     if (nextValue.length <= 0 || value === nextValue) {
@@ -47,7 +49,7 @@ function SearchInput({ onSearch, isLoading }: SearchInputProps) {
   return (
     <SearchWrapper>
       <Search type="text" placeholder="Search..." onChange={onChange} value={nextValue} />
-      {isLoading && <Spinner size={20} />}
+      {!!isFetching && <Spinner size={20} />}
     </SearchWrapper>
   );
 }

@@ -4,11 +4,8 @@ import React, {
 
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import axios from 'axios';
 import playSvg from '../../svgs/play.svg';
 import pauseSvg from '../../svgs/pause.svg';
-
-import { Track } from '../../../types';
 
 import spectrum from '../../helpers/spectrum';
 import Speaker from './Speaker';
@@ -20,6 +17,8 @@ import Text from '../Text';
 import { addMarker, deleteMarkers, getMarkers } from '../../helpers/markers';
 
 import Tooltip from './Tooltip';
+import { usePlaylist } from '../../providers/PlaylistProvider';
+import audius from '../../helpers/audius';
 
 interface PlayerContainerProps {
   fullScreen: boolean
@@ -31,6 +30,23 @@ const PlayerContainer = styled.div<PlayerContainerProps>`
   position: fixed;
   bottom: 0;
   z-index: 99;
+
+
+  animation-name: player-fade-in;
+  animation-duration: 1s;
+  animation-fill-mode: forwards;
+
+  @keyframes player-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(50px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0px);
+    }
+  }
 
 
   ${({ fullScreen }) => (fullScreen ? `
@@ -134,29 +150,24 @@ const TimeText = styled.span`
   }
 `;
 
-interface PlayerInterface {
-  playlist: Track[]
-  onPlaybackTrack: (id: string) => void
-}
-
-function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
+function Player() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const { playingTrack, playNext } = usePlaylist();
+
   const [currentTrackId, setCurrentTrackId] = useState(null);
-  const [activePlaylist, setActivePlaylist] = useState([]);
   const [trackMarkers, setTrackMarkers] = useState([]);
 
   const [startTime, setStartTime] = useState('00:00:00');
   const [endTime, setEndTime] = useState('00:00:00');
 
   useEffect(() => {
-    if (!playlist.length) {
+    if (!playingTrack) {
       return;
     }
-    setActivePlaylist(playlist);
-    setCurrentTrackId(playlist[0].id);
-  }, [playlist]);
+    setCurrentTrackId(playingTrack.id);
+  }, [playingTrack]);
 
   const [stream, setStream] = useState(null);
 
@@ -173,36 +184,21 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
   const audioRef = useRef<HTMLAudioElement>();
   const canvasRef = useRef<HTMLCanvasElement>();
 
-  const getNextTrackId = useCallback(() => {
-    const index = activePlaylist.findIndex((e) => e.id === currentTrackId);
-
-    const nextTrackId = activePlaylist[index + 1]
-      ? activePlaylist[index + 1].id
-      : activePlaylist[0].id;
-
-    return nextTrackId;
-  }, [activePlaylist, currentTrackId]);
-
   const loadTrackInformation = useCallback(async (trackId) => {
-    // Only here to check, if the stream is actually reachable
-    axios.get(`${localStorage.getItem('host')}/v1/tracks/${currentTrackId}/stream?app_name=SPICEY`)
-      .catch(() => {
-        // If not, load the next track
-        setCurrentTrackId(getNextTrackId());
-      });
-
     try {
-      const res = await axios.get(`${localStorage.getItem('host')}/v1/tracks/${trackId}?app_name=SPICEY`);
+      const str = await audius.streamTrack(trackId);
 
-      const { data } = res.data;
-      setTrack(data.title);
-      setArtist(data.user.name);
-      setArtistId(data.user.id);
-      setCover(data.artwork['150x150']);
+      setTrack(playingTrack.title);
+      setArtist(playingTrack.user.name);
+      setArtistId(playingTrack.user.id);
+      // eslint-disable-next-line no-underscore-dangle
+      setCover(playingTrack.artwork._150x150);
+
+      return str;
     } catch (err) {
-      setCurrentTrackId(getNextTrackId());
+      playNext();
     }
-  }, [currentTrackId, getNextTrackId]);
+  }, [playNext, playingTrack]);
 
   const handleArtistClick = useCallback(() => {
     navigate(`/artist/${artistId}`);
@@ -212,8 +208,10 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
     if (!currentTrackId) {
       return;
     }
-    loadTrackInformation(currentTrackId);
-    setStream(`${localStorage.getItem('host')}/v1/tracks/${currentTrackId}/stream?app_name=SPICEY`);
+    loadTrackInformation(currentTrackId)
+      .then((str) => {
+        setStream(str);
+      });
   }, [currentTrackId, loadTrackInformation]);
 
   useEffect(() => {
@@ -244,12 +242,11 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
     };
 
     const onCanPlay = () => {
-      onPlaybackTrack(currentTrackId);
       audioRef.current.play();
     };
 
     const onEnded = () => {
-      setCurrentTrackId(getNextTrackId());
+      playNext();
     };
 
     const onKeyDown = (e) => {
@@ -287,7 +284,7 @@ function Player({ playlist = [], onPlaybackTrack }: PlayerInterface) {
 
       window.removeEventListener('keydown', onKeyDown);
     };
-  }, [currentTrackId, getNextTrackId, onPlaybackTrack]);
+  }, [currentTrackId]);
 
   useEffect(() => {
     if (!audioRef.current || !stream) {

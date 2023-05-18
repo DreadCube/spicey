@@ -1,25 +1,21 @@
 import React, {
-  useState, useCallback, useEffect,
+  useCallback, useEffect,
 } from 'react';
 
 import styled from 'styled-components';
 
 import {
   useNavigate, useLocation,
+  Outlet,
 } from 'react-router-dom';
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { LogoAlt } from './components/Logo';
-import AudioCard from './components/AudioCard';
 import SearchInput from './components/SearchInput';
 import Player from './components/Player';
 
-import useTracks from './hooks/useTracks';
-
-import { Track } from './types';
-
-import ArtistHeader from './components/ArtistHeader';
-import CardSkeleton from './components/CardSkeleton';
-import { Spinner } from './components/Loader';
+import Login from './components/Login';
+import PlaylistProvider from './providers/PlaylistProvider';
 
 const Wrapper: React.FC = styled.div`
   min-height: 100vh;
@@ -57,7 +53,7 @@ const LogoWrapper = styled.div`
   margin: 10px;
 `;
 
-const TracksWrapper = styled.div`
+export const TracksWrapper = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, 180px);
   justify-content: center;
@@ -79,18 +75,7 @@ const Content = styled.div`
   }
 `;
 
-const getTrackUrl = (location) => {
-  const searchParams = new URLSearchParams(location.search);
-
-  if (searchParams.has('search')) {
-    return `tracks/search?query=${searchParams.get('search')}`;
-  }
-  if (location.pathname.includes('artist')) {
-    const [, artistId] = location.pathname.split('artist/');
-    return `/users/${artistId}/tracks`;
-  }
-  return '/tracks/trending';
-};
+const queryClient = new QueryClient();
 
 function App() {
   const location = useLocation();
@@ -99,70 +84,34 @@ function App() {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
-  const { tracks, isLoading } = useTracks(getTrackUrl(location));
-  const [playingTrackId, setPlayingTrackId] = useState<string>(null);
-  const [playlist, setPlaylist] = useState<Track[]>([]);
-
   const navigate = useNavigate();
 
   const onSearch = useCallback(async (search: string) => {
     navigate({
-      pathname: '/',
-      search: `?search=${search}`,
+      pathname: `/search/${search}`,
     });
   }, [navigate]);
 
-  const handlePlayTrack = useCallback((trackId) => {
-    const index = tracks.findIndex((e) => e.id === trackId);
-
-    const prevTracks = tracks.slice(0, index);
-    const nextTracks = tracks.slice(index);
-
-    const newPlaylist = [
-      ...nextTracks,
-      ...prevTracks,
-    ];
-
-    setPlaylist(newPlaylist);
-  }, [tracks]);
-
-  const onPlaybackTrack = useCallback((trackId) => {
-    setPlayingTrackId(trackId);
-  }, []);
-
-  const artist = location.pathname.includes('artist') && tracks[0]?.artist;
-
   return (
-    <Wrapper>
-      <Header>
-        <LogoWrapper>
-          <LogoAlt />
-        </LogoWrapper>
-        <SearchInput onSearch={onSearch} isLoading={isLoading} />
-      </Header>
-      <Content>
-        {artist
-        && (
-          <ArtistHeader artist={artist} isLoading={isLoading} />
-        )}
+    <QueryClientProvider client={queryClient}>
+      <PlaylistProvider>
 
-        <TracksWrapper>
-          {!isLoading && tracks.map((track, index) => (
-            <AudioCard
-              onClick={handlePlayTrack}
-              key={track.id}
-              id={track.id}
-              artworkSrc={track.artworkSrc}
-              trackName={track.trackName}
-              artist={track.artist}
-              isActive={playingTrackId === track.id}
-              entryDelay={index * 50}
-            />
-          ))}
-        </TracksWrapper>
-      </Content>
-      <Player playlist={playlist} onPlaybackTrack={onPlaybackTrack} />
-    </Wrapper>
+        <Wrapper>
+          <Header>
+            <LogoWrapper>
+              <LogoAlt />
+            </LogoWrapper>
+            <SearchInput onSearch={onSearch} />
+            <Login />
+          </Header>
+          <Content>
+            <Outlet />
+          </Content>
+          <Player />
+        </Wrapper>
+
+      </PlaylistProvider>
+    </QueryClientProvider>
   );
 }
 

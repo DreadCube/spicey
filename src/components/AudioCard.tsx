@@ -1,17 +1,22 @@
+/* eslint-disable no-underscore-dangle */
 import React from 'react';
 import styled from 'styled-components';
 
 import { useNavigate } from 'react-router-dom';
 
 import isVerifiedSvg from '../svgs/verified.svg';
-import { Track } from '../types';
+import { Track } from '../helpers/audius/types';
+
 import Text from './Text';
 import { Spinner } from './Loader';
 
 interface CardProps {
   isActive: boolean
+  entryDelay: number
 }
+
 const Card = styled.div<CardProps>`
+  display: block;
   background-color: #131313;
   padding: 10px;
   border-radius: 10px;
@@ -30,7 +35,7 @@ const Card = styled.div<CardProps>`
 
   opacity: 0;
 
-  @keyframes fadeIn {
+  @keyframes audioCard-fadeIn {
     0% {
       opacity: 0;
       transform: translateY(250px);
@@ -42,12 +47,15 @@ const Card = styled.div<CardProps>`
     }
   }
 
-  animation: fadeIn 1s;
+  animation: audioCard-fadeIn 1s;
   animation-delay: ${({ entryDelay }) => entryDelay}ms;
   animation-fill-mode: forwards;
 `;
 
-const Cover = styled.div`
+interface CoverProps {
+  src: string
+}
+const Cover = styled.div<CoverProps>`
   border-radius: 10px;
   box-shadow: 0px 0px 10px #000000;
   max-width: 150px;
@@ -107,10 +115,12 @@ const SpinnerWrapper = styled.div`
 `;
 
 function AudioCard({
-  artworkSrc, trackName, artist, id, onClick, isActive,
+  artwork, title, user, id, onClick, isActive,
   entryDelay = 0,
 }: AudioCardInterface) {
   const navigate = useNavigate();
+
+  const artworkSrc = artwork._150x150 || '';
 
   const coverRef = React.useRef<HTMLImageElement>();
   const [coverLoaded, setCoverLoaded] = React.useState(false);
@@ -120,13 +130,13 @@ function AudioCard({
   }, [id, onClick]);
 
   const handleArtistClick = React.useCallback(() => {
-    navigate(`/artist/${artist.id}`);
-  }, [artist.id, navigate]);
+    navigate(`/artist/${user.id}`);
+  }, [user.id, navigate]);
 
   const handleTrackClick = React.useCallback(() => {
 
     // navigate(`/track/${id}`);
-  }, [navigate, id]);
+  }, []);
 
   React.useEffect(() => {
     setCoverLoaded(false);
@@ -145,8 +155,29 @@ function AudioCard({
     };
   }, [artworkSrc]);
 
+  const cardRef = React.useRef();
+
+  React.useEffect(() => {
+    if (!isActive) {
+      cardRef.current.style.boxShadow = '0px 0px 0px 1px cyan';
+      return;
+    }
+
+    const applyBoxShadow = ({ data }) => {
+      const boxShadow = data.reduce((acc, curr) => acc + curr, 0) / data.length / 2;
+
+      cardRef.current.style.boxShadow = `0px 0px ${boxShadow}px 1px #ff00a9`;
+    };
+
+    window.addEventListener('message', applyBoxShadow);
+
+    return () => {
+      window.removeEventListener('message', applyBoxShadow);
+    };
+  }, [isActive]);
+
   return (
-    <Card isActive={isActive} entryDelay={entryDelay}>
+    <Card isActive={isActive} entryDelay={entryDelay} ref={cardRef}>
       {
         coverLoaded
           ? (
@@ -162,10 +193,10 @@ function AudioCard({
           )
       }
       <TextWrapper>
-        <Text type={isActive ? 'secondary' : 'primary'} onClick={handleTrackClick}>{trackName}</Text>
+        <Text type={isActive ? 'secondary' : 'primary'} onClick={handleTrackClick}>{title}</Text>
         <Text onClick={handleArtistClick}>
-          {artist.name}
-          {artist.isVerified && <Verified src={isVerifiedSvg} />}
+          {user.name}
+          {user.is_verified && <Verified src={isVerifiedSvg} />}
         </Text>
       </TextWrapper>
     </Card>
