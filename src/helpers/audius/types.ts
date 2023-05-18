@@ -33,23 +33,23 @@ export interface User {
     album_count: number
     bio?: string
     coverPhoto?: CoverPhoto
-    does_follow_current_user?: boolean
+    doesFollowCurrentUser?: boolean
     erc_wallet?: string
-    followee_count: number
-    follower_count: number
+    followeeCount: number
+    followerCount: number
     handle: string
     id: string
-    is_deactivated: boolean
-    is_verified: boolean
+    isDeactivated: boolean
+    isVerified: boolean
     location?: string
     name: string
-    playlist_count: number
+    playlistCount: number
     profilePicture?: ProfilePicture
-    repost_count: number
-    spl_wallet: string
-    supporter_count: number
-    supporting_count: number
-    track_count: number
+    repostCount: number
+    splWallet: string
+    supporterCount: number
+    supportingCount: number
+    trackCount: number
 }
 
 export interface Track {

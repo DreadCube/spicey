@@ -121,11 +121,11 @@ function ArtistHeader({ artist }: ArtistHeaderProps) {
         <InfoTextMainWrapper>
           <InfoTextWrapper>
             <InfoTextIcon src={followersSvg} />
-            <InfoText>{artist.follower_count}</InfoText>
+            <InfoText>{artist.followerCount}</InfoText>
           </InfoTextWrapper>
           <InfoTextWrapper>
             <InfoTextIcon src={trackCountSvg} />
-            <InfoText>{artist.track_count}</InfoText>
+            <InfoText>{artist.trackCount}</InfoText>
           </InfoTextWrapper>
           {artist.location
             && (

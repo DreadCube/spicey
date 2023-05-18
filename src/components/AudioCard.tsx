@@ -201,7 +201,7 @@ function AudioCard({
         <Text type={isActive ? 'secondary' : 'primary'} onClick={handleTrackClick}>{title}</Text>
         <Text onClick={handleArtistClick}>
           {user.name}
-          {user.is_verified && <Verified src={isVerifiedSvg} />}
+          {user.isVerified && <Verified src={isVerifiedSvg} />}
         </Text>
       </TextWrapper>
     </Card>
