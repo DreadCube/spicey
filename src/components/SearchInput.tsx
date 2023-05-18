@@ -1,5 +1,6 @@
 import { useIsFetching } from '@tanstack/react-query';
 import React, { useState, useCallback } from 'react';
+import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { Spinner } from './Loader';
 
@@ -23,8 +24,9 @@ interface SearchInputProps {
   onSearch: (value: string) => void
 }
 function SearchInput({ onSearch }: SearchInputProps) {
-  const [value, setValue] = useState('');
-  const [nextValue, setNextValue] = useState('');
+  const { search = '' } = useParams();
+  const [value, setValue] = useState(search);
+  const [nextValue, setNextValue] = useState(search);
 
   const isFetching = useIsFetching();
 
