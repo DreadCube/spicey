@@ -25,6 +25,7 @@ const Card = styled.div<CardProps>`
   align-items: center;
   justify-content: space-between;
   z-index: 1;
+  cursor: pointer;
 
   ${({ isActive }) => (isActive
     ? `
@@ -78,7 +79,6 @@ const TextWrapper = styled.div`
 const CoverWrapper = styled.div`
   width: inherit;
   position: relative;
-  cursor: pointer;
 
   &:hover .playButton {
     opacity: 1;
@@ -132,7 +132,8 @@ function AudioCard({
     onClick(id);
   }, [id, onClick]);
 
-  const handleArtistClick = React.useCallback(() => {
+  const handleArtistClick = React.useCallback((e) => {
+    e.stopPropagation();
     navigate(`/artist/${user.id}`);
   }, [user.id, navigate]);
 
@@ -182,7 +183,7 @@ function AudioCard({
   }, [isActive]);
 
   return (
-    <Card isActive={isActive} entryDelay={entryDelay} ref={cardRef}>
+    <Card isActive={isActive} entryDelay={entryDelay} ref={cardRef} onClick={handleClick}>
       {
         coverLoaded
           ? (
