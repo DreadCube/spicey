@@ -4,6 +4,9 @@
         "target": "ES2016",
         "lib": ["ES2021", "DOM"],
         "moduleResolution": "node",
-        "allowSyntheticDefaultImports": true
-    }
+        "allowSyntheticDefaultImports": true,
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules"],
+    "files": ["./custom.d.ts"]
 }
