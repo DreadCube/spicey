@@ -4,7 +4,10 @@ import styled from 'styled-components';
 
 import Logo from './Logo';
 
-const StyledSpinner = styled.svg`
+interface StyledSpinnerProps {
+  size: number
+}
+const StyledSpinner = styled.svg<StyledSpinnerProps>`
     animation: rotate 2s linear infinite;
     width: ${({ size }) => size}px;
     height: ${({ size }) => size}px;
