@@ -154,7 +154,7 @@ function Player() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { playingTrack, playNext } = usePlaylist();
+  const { playingTrack, playNext, playPrevious } = usePlaylist();
 
   const [currentTrackId, setCurrentTrackId] = useState(null);
   const [trackMarkers, setTrackMarkers] = useState([]);
@@ -214,6 +214,14 @@ function Player() {
       });
   }, [currentTrackId, loadTrackInformation]);
 
+  const handleTogglePlay = useCallback(() => {
+    if (audioRef.current.paused) {
+      audioRef.current.play();
+      return;
+    }
+    audioRef.current.pause();
+  }, []);
+
   useEffect(() => {
     if (!audioRef.current) {
       return;
@@ -234,6 +242,17 @@ function Player() {
     };
 
     const onPlay = () => {
+      const artwork = Object.entries(playingTrack.artwork || {}).map(([key, value]) => ({
+        src: value,
+        type: 'image/jpg',
+        sizes: key.replace('_', ''),
+      }));
+
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: playingTrack.title,
+        artist: playingTrack.user.name,
+        artwork,
+      });
       setIsPlaying(true);
     };
 
@@ -270,6 +289,11 @@ function Player() {
     audioRef.current.addEventListener('canplay', onCanPlay);
     audioRef.current.addEventListener('ended', onEnded);
 
+    navigator.mediaSession.setActionHandler('play', handleTogglePlay);
+    navigator.mediaSession.setActionHandler('pause', handleTogglePlay);
+    navigator.mediaSession.setActionHandler('previoustrack', playPrevious);
+    navigator.mediaSession.setActionHandler('nexttrack', onEnded);
+
     window.addEventListener('keydown', onKeyDown);
 
     return () => {
@@ -299,14 +323,6 @@ function Player() {
       audioRef,
     });
   }, [stream]);
-
-  const handleTogglePlay = useCallback(() => {
-    if (audioRef.current.paused) {
-      audioRef.current.play();
-      return;
-    }
-    audioRef.current.pause();
-  }, []);
 
   const handleTrackClick = useCallback(() => {
     navigate(`/track/${currentTrackId}`);
