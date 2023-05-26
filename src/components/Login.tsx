@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import audius from '../helpers/audius/index';
 import { UserProfile } from '../helpers/audius/types';
+import { useAuth } from '../providers/AuthProvider';
 
 const LoginWrapper = styled.div`
     display: flex;
@@ -41,16 +42,16 @@ const Button = styled.button`
 `;
 
 function Login() {
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const { user, setUser } = useAuth();
 
   React.useEffect(() => {
     audius.loginInit(
       (res) => {
-        setUserProfile(res);
+        setUser(res.userId);
       },
       () => {},
     );
-  }, []);
+  }, [setUser]);
 
   const handleClick = () => {
     audius.login();
@@ -59,11 +60,15 @@ function Login() {
   return (
     <LoginWrapper>
       {
-            userProfile
+            user
               ? (
                 <>
-                  <span style={{ marginRight: 10 }}>{userProfile.handle}</span>
-                  <img style={{ width: 60, height: 60, borderRadius: 10 }} src={userProfile.profilePicture._150x150} />
+                  <span style={{ marginRight: 10 }}>{user.handle}</span>
+                  <img
+                    style={{ width: 60, height: 60, borderRadius: 10 }}
+                    src={user.profilePicture._150x150}
+                    alt="todo"
+                  />
                 </>
               )
               : (
@@ -73,6 +78,7 @@ function Login() {
                       width: 20, height: 20, filter: 'invert(1)', marginRight: 10,
                     }}
                     src="https://dl.dropboxusercontent.com/s/73hxxq38cvnf7cg/Glyph_Black%402x.png?dl=1"
+                    alt="todo"
                   />
                   <span>Login</span>
                 </Button>

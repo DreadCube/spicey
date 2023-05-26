@@ -72,7 +72,7 @@ export interface Track {
 }
 
 export type UserProfile = {
-  userId: number;
+  userId: string;
   email: string;
   name: string;
   handle: string;

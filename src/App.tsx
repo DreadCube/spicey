@@ -16,6 +16,7 @@ import Player from './components/Player';
 
 import Login from './components/Login';
 import PlaylistProvider from './providers/PlaylistProvider';
+import AuthProvider from './providers/AuthProvider';
 
 const Wrapper: React.FC = styled.div`
   min-height: 100vh;
@@ -94,23 +95,23 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <PlaylistProvider>
-
-        <Wrapper>
-          <Header>
-            <LogoWrapper>
-              <LogoAlt />
-            </LogoWrapper>
-            <SearchInput onSearch={onSearch} />
-            <Login />
-          </Header>
-          <Content>
-            <Outlet />
-          </Content>
-          <Player />
-        </Wrapper>
-
-      </PlaylistProvider>
+      <AuthProvider>
+        <PlaylistProvider>
+          <Wrapper>
+            <Header>
+              <LogoWrapper>
+                <LogoAlt />
+              </LogoWrapper>
+              <SearchInput onSearch={onSearch} />
+              <Login />
+            </Header>
+            <Content>
+              <Outlet />
+            </Content>
+            <Player />
+          </Wrapper>
+        </PlaylistProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
