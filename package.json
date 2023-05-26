@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "@audius/sdk": "^2.0.3-beta.18",
+    "@netlify/functions": "^1.6.0",
     "@tanstack/react-query": "^4.29.5",
     "axios": "^0.26.1",
     "react": "^18.0.0",
@@ -20,10 +21,11 @@
     "react-joyride": "^2.5.3",
     "react-router-dom": "^6.11.1",
     "styled-components": "^5.3.5",
+    "typescript": "^4.9.5",
     "web3": "^1.10.0"
   },
   "devDependencies": {
-    "@types/node": "^18.0.0",
+    "@types/node": "^14.18.47",
     "@types/react": "^17.0.43",
     "@types/react-dom": "^17.0.14",
     "@types/styled-components": "^5.1.25",
