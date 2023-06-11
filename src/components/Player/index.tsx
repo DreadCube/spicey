@@ -108,6 +108,12 @@ const ContentContainer = styled.div`
   justify-content: space-evenly;
   margin-left: 20px;
   margin-right: 20px;
+
+  @media screen and (max-width: 600px) {
+    img {
+      display: none;
+    }
+  }
 `;
 
 const DescriptionContainer = styled.div`
@@ -232,6 +238,8 @@ function Player() {
     spectrum.start(
       { canvasRef, audio },
     );
+
+    window.document.title = `♫ ${playingTrack.title} - ${playingTrack.user.name}`;
 
     setIsPlaying(true);
   }, [playingTrack]);

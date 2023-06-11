@@ -41,11 +41,29 @@ const Header = styled.div`
 
     padding-bottom: 10px;
     
-    input {
+    div:has(input) {
       width: 100%;
-      margin-bottom: 10px;
-      margin-left: 10px;
-      margin-right: 10px;
+      
+      > input {
+        width: 100%;
+        margin-left: 20px;
+        margin-right: 20px;
+      }
+    }
+
+    div:has(div):has(svg) {
+      position: absolute;
+      top: 0;
+      right: 0;
+      margin: 20px;
+    }
+
+    > div:first-child > div > span:first-child {
+      font-size: 40px;
+    }
+
+    > div:first-child > div > span:nth-child(2) {
+      display: none;
     }
   }
 `;
