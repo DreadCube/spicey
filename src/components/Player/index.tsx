@@ -227,6 +227,12 @@ function Player() {
       artist: playingTrack.user.name,
       artwork,
     });
+
+    const audio = howlerRef.current?._sounds[0]?._node;
+    spectrum.start(
+      { canvasRef, audio },
+    );
+
     setIsPlaying(true);
   }, [playingTrack]);
 
@@ -288,13 +294,6 @@ function Player() {
     navigator.mediaSession.setActionHandler('nexttrack', onEnded);
 
     window.addEventListener('keydown', onKeyDown);
-
-    howlerRef.current.on('play', () => {
-      const audio = howlerRef.current?._sounds[0]?._node;
-      spectrum.start(
-        { canvasRef, audio },
-      );
-    });
 
     howlerRef.current.play();
 

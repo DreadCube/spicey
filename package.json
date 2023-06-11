@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "@audius/sdk": "^2.0.3-beta.18",
+    "@iconify/react": "^4.1.0",
     "@netlify/functions": "^1.6.0",
     "@tanstack/react-query": "^4.29.5",
     "axios": "^0.26.1",
