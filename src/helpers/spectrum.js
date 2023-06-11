@@ -62,7 +62,6 @@ const spectrum = {
       x = 0;
 
       analyser.getByteFrequencyData(dataArray);
-      console.log(dataArray);
 
       postMessage(dataArray);
 

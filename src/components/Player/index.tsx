@@ -13,15 +13,12 @@ import Speaker from './Speaker';
 import TrackPositionSlider from './TrackPositionSlider';
 import { PLAYBACK_RANGE_MAX } from './constants';
 import AudioSpectrum from './AudioSpectrum';
-import Audio from './Audio';
 import Text from '../Text';
 import { addMarker, deleteMarkers, getMarkers } from '../../helpers/markers';
 
 import Tooltip from './Tooltip';
 import { usePlaylist } from '../../providers/PlaylistProvider';
 import audius from '../../helpers/audius';
-
-import rewindMp3 from '../../containers/RewindContainer/2023/assets/audio/rewind.mp3';
 
 Howler.autoUnlock = true;
 Howler.usingWebAudio = true;
@@ -269,33 +266,7 @@ function Player() {
     }
   }, [handleTogglePlay]);
 
-  /* useEffect(() => {
-    howlerRef.current = new Howl({
-      src: [rewindMp3],
-      html5: true,
-    });
-
-    howlerRef.current.on('loaderror', () => {
-      const audio = howlerRef.current?._sounds[0]?._node;
-
-      audio.crossOrigin = 'anonymous';
-
-      spectrum.start(
-        { canvasRef, audio },
-      );
-
-      audio.play();
-    });
-
-    howlerRef.current.play();
-
-    // howlerRef.current.play();
-  }, []); */
-
   useEffect(() => {
-    if (!stream) {
-      return;
-    }
     howlerRef.current = new Howl({
       src: [stream],
       html5: true,
@@ -319,110 +290,16 @@ function Player() {
     window.addEventListener('keydown', onKeyDown);
 
     howlerRef.current.on('play', () => {
-      // const audio = howlerRef.current?._sounds[0]?._node;
-      // audio.crossOrigin = 'anonymous';
-
-      /* spectrum.start(
+      const audio = howlerRef.current?._sounds[0]?._node;
+      spectrum.start(
         { canvasRef, audio },
       );
-
-      audio.play(); */
     });
-
-    howlerRef.current.on('playerror', () => {
-      console.log('play error');
-    });
-
-    /* howlerRef.current.on('loaderror', () => {
-      console.log('loadError');
-
-      const audio = howlerRef.current?._sounds[0]?._node;
-      if (audio) {
-        audio.crossOrigin = 'anonymous';
-      }
-
-      spectrum.start(
-        { canvasRef, audio: howlerRef.current?._sounds[0]?._node },
-      );
-    });
-
-    howlerRef.current.on('load', () => {
-      howlerRef.current.play();
-      console.log('loaded');
-    });
-
-    howlerRef.current.on('play', () => {
-      if (!howlerRef.current.playing()) {
-        howlerRef.current.play();
-      }
-    }); */
-
-    /* howlerRef.current.on('play', () => {
-      const audio = howlerRef.current?._sounds[0]?._node;
-
-      if (audio) {
-        audio.crossOrigin = 'anonymous';
-      }
-
-      console.log(audio);
-
-      // Create analyser node
-
-      const audioSourceNode = Howler.ctx.createMediaElementSource(audio);
-      const analyser = Howler.ctx.createAnalyser();
-      analyser.fftSize = 2048;
-      const bufferLength = analyser.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
-
-      // Set up audio node network
-      audioSourceNode.connect(analyser);
-      analyser.connect(Howler.ctx.destination);
-
-      howlerRef.current.play();
-
-      let x = 0;
-
-      function draw() {
-        requestAnimationFrame(draw);
-
-        analyser.getByteFrequencyData(dataArray);
-
-        // TODO: Check why we have all zero here
-        if (dataArray.every((entry) => entry === 0)) {
-          return;
-        }
-
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext('2d');
-        const WIDTH = canvas.width;
-        const HEIGHT = canvas.height;
-
-        const barWidth = (WIDTH / bufferLength) * 1.5;
-
-        x = 0;
-        let barHeight;
-
-        ctx.fillStyle = 'rgba(19, 19, 19, 1)';
-        ctx.fillRect(0, 0, WIDTH, HEIGHT);
-
-        for (let i = 0; i < bufferLength; i++) {
-          barHeight = dataArray[i];
-
-          ctx.fillStyle = '#ff00a9';
-
-          ctx.fillRect(x, HEIGHT - barHeight, barWidth, (250 / barHeight) * HEIGHT);
-
-          x += barWidth + 1;
-        }
-
-        postMessage(dataArray);
-      }
-      draw(); */
-    // });
 
     howlerRef.current.play();
 
     return () => {
+      spectrum.stop();
       clearInterval(interval);
 
       window.removeEventListener('keydown', onKeyDown);
@@ -437,94 +314,6 @@ function Player() {
   const handleArtistClick = useCallback(() => {
     navigate(`/artist/${artistId}`);
   }, [artistId, navigate]);
-
-  /* const handleTogglePlay = useCallback(() => {
-    if (audioRef.current.paused) {
-      audioRef.current.play();
-      return;
-    }
-    audioRef.current.pause();
-  }, []); */
-
-  /* useEffect(() => {
-    if (!audioRef.current) {
-      return;
-    }
-
-    const onTimeUpdate = () => {
-      const duration = !Number.isNaN(audioRef.current.duration) ? audioRef.current.duration : 0;
-      const currentTime = !Number.isNaN(audioRef.current.currentTime)
-        ? audioRef.current.currentTime
-        : 0;
-
-      const sTime = new Date(currentTime * 1000).toISOString().substring(11, 19);
-      setStartTime(sTime);
-      const eTime = new Date(duration * 1000).toISOString().substring(11, 19);
-      setEndTime(eTime);
-      const newRangeValue = Math.round((PLAYBACK_RANGE_MAX / duration) * currentTime);
-      setRangeValue(!Number.isNaN(newRangeValue) ? newRangeValue : 0);
-    };
-
-    const onCanPlay = () => {
-      audioRef.current.muted = true;
-      audioRef.current.play();
-    };
-
-    const onKeyDown = (e) => {
-      if (e.keyCode === 32 || e.code === 'Space') {
-        // We don't wanna interupt a input field
-        if (e.target.nodeName === 'INPUT') {
-          return;
-        }
-        e.preventDefault();
-        if (audioRef.current.paused) {
-          audioRef.current.play();
-        } else {
-          audioRef.current.pause();
-        }
-      }
-    };
-
-    audioRef.current.addEventListener('timeupdate', onTimeUpdate);
-    audioRef.current.addEventListener('play', onPlay);
-    audioRef.current.addEventListener('pause', onPause);
-    audioRef.current.addEventListener('canplay', onCanPlay);
-    audioRef.current.addEventListener('ended', onEnded);
-
-    navigator.mediaSession.setActionHandler('play', handleTogglePlay);
-    navigator.mediaSession.setActionHandler('pause', handleTogglePlay);
-    navigator.mediaSession.setActionHandler('previoustrack', playPrevious);
-    navigator.mediaSession.setActionHandler('nexttrack', onEnded);
-
-    window.addEventListener('keydown', onKeyDown);
-
-    return () => {
-      if (!audioRef.current) {
-        return;
-      }
-      audioRef.current.removeEventListener('timeupdate', onTimeUpdate);
-      audioRef.current.removeEventListener('play', onPlay);
-      audioRef.current.removeEventListener('pause', onPause);
-      audioRef.current.removeEventListener('canplay', onCanPlay);
-      audioRef.current.removeEventListener('ended', onEnded);
-
-      window.removeEventListener('keydown', onKeyDown);
-    };
-  }, [currentTrackId]); */
-
-  /* useEffect(() => {
-    if (!audioRef.current || !stream) {
-      return;
-    }
-
-    audioRef.current.pause();
-    audioRef.current.load();
-
-    spectrum.start({
-      canvasRef,
-      audioRef,
-    });
-  }, [stream]); */
 
   const handleTrackClick = useCallback(() => {
     navigate(`/track/${currentTrackId}`);
@@ -557,8 +346,30 @@ function Player() {
     }
   }, [currentTrackId]);
 
+  /*
+  * Enables audio cross origin. Needed for spectrum visualizer part
+  */
+  const enableAudioCrossOrigin = useCallback(() => {
+    const audio = howlerRef.current?._sounds[0]?._node;
+    audio.crossOrigin = 'anonymous';
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('mousemove', enableAudioCrossOrigin);
+    window.addEventListener('click', enableAudioCrossOrigin);
+    window.addEventListener('touchstart', enableAudioCrossOrigin);
+    window.addEventListener('touchmove', enableAudioCrossOrigin);
+
+    return () => {
+      window.removeEventListener('mousemove', enableAudioCrossOrigin);
+      window.removeEventListener('click', enableAudioCrossOrigin);
+      window.removeEventListener('touchstart', enableAudioCrossOrigin);
+      window.removeEventListener('touchmove', enableAudioCrossOrigin);
+    };
+  }, [enableAudioCrossOrigin]);
+
   if (!currentTrackId) {
-    return;
+    return null;
   }
 
   const isOnTrackPage = location.pathname.includes('/track/');
