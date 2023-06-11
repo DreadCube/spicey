@@ -292,6 +292,7 @@ function Player() {
     navigator.mediaSession.setActionHandler('pause', handleTogglePlay);
     navigator.mediaSession.setActionHandler('previoustrack', playPrevious);
     navigator.mediaSession.setActionHandler('nexttrack', onEnded);
+    navigator.mediaSession.setActionHandler('stop', onPause);
 
     window.addEventListener('keydown', onKeyDown);
 
