@@ -1,3 +1,4 @@
+import { Howl } from 'howler';
 import React, { useCallback, useEffect } from 'react';
 
 import styled from 'styled-components';
@@ -32,30 +33,30 @@ const Marker = styled.div<MarkerProps>`
 `;
 
 interface TrackPositionSliderProps {
-  audioRef: {
-    current: HTMLAudioElement
+  howlerRef: {
+    current: Howl
   }
   position: number
   onAddMarker: (percentage: number) => void
   onDeleteMarkers: () => void
   markers: number[]
 }
+
 function TrackPositionSlider({
-  audioRef, position, onAddMarker, onDeleteMarkers, markers = [],
+  howlerRef, position, onAddMarker, onDeleteMarkers, markers = [],
 }: TrackPositionSliderProps) {
   const handleChange = useCallback((e) => {
-    const { duration } = audioRef.current;
+    const duration = howlerRef.current.duration();
 
-    // eslint-disable-next-line no-param-reassign
-    audioRef.current.currentTime = (duration / PLAYBACK_RANGE_MAX) * e.target.value;
-
-    audioRef.current.play();
-  }, [audioRef]);
+    howlerRef.current.seek((duration / PLAYBACK_RANGE_MAX) * e.target.value);
+  }, [howlerRef]);
 
   useEffect(() => {
     const onKeyUp = (e) => {
+      const duration = howlerRef.current.duration();
+      const currentTime = howlerRef.current.seek();
       if (e.keyCode === 49) {
-        const percentage = (100 / audioRef.current.duration) * audioRef.current.currentTime;
+        const percentage = (100 / duration) * currentTime;
         onAddMarker(percentage);
         return;
       }
@@ -63,7 +64,7 @@ function TrackPositionSlider({
       if (e.keyCode === 50) {
         e.stopPropagation();
 
-        const percentage = (100 / audioRef.current.duration) * audioRef.current.currentTime;
+        const percentage = (100 / duration) * currentTime;
 
         const markersCopy = [...markers];
         markersCopy.sort();
@@ -75,7 +76,8 @@ function TrackPositionSlider({
           return;
         }
 
-        audioRef.current.currentTime = (audioRef.current.duration / 100) * nextMarker;
+        howlerRef.current.seek((duration / 100) * nextMarker);
+
         return;
       }
 
@@ -88,7 +90,7 @@ function TrackPositionSlider({
     return () => {
       document.removeEventListener('keyup', onKeyUp);
     };
-  }, [audioRef, onAddMarker, markers, onDeleteMarkers]);
+  }, [howlerRef, onAddMarker, markers, onDeleteMarkers]);
 
   useEffect(() => {
 

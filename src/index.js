@@ -9,11 +9,16 @@ import App from './App';
 import DashboardContainer from './containers/DashboardContainer';
 import SearchContainer from './containers/SearchContainer';
 import ArtistContainer from './containers/ArtistContainer';
+import RewindContainer from './containers/RewindContainer';
 
 const container = document.getElementById('app');
 const root = createRoot(container);
 
 const router = createBrowserRouter([
+  {
+    path: '/rewind/:userId/:year',
+    element: <RewindContainer />,
+  },
   {
     path: '/',
     element: <App />,

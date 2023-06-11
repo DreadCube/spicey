@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 
 import styled from 'styled-components';
 
+import { Howler } from 'howler';
 import StyledRange from './StyledRange';
 
 import speakerSvg from '../../svgs/speaker.svg';
@@ -34,13 +35,8 @@ const StyledSpeaker = styled.img`
   margin-top: 5px;
 `;
 
-interface SpeakerProps {
-  audioRef: {
-    current: HTMLAudioElement
-  }
-}
-function Speaker({ audioRef } : SpeakerProps) {
-  const [volume, setVolume] = useState(1);
+function Speaker() {
+  const [volume, setVolume] = useState(Howler.volume());
   const [showVolume, setShowVolume] = useState(false);
 
   const handleShowVolume = useCallback(() => {
@@ -54,9 +50,9 @@ function Speaker({ audioRef } : SpeakerProps) {
   const handleVolumeChange = useCallback((e) => {
     const newVolume = e.target.value;
     setVolume(newVolume);
-    // eslint-disable-next-line no-param-reassign
-    audioRef.current.volume = newVolume;
-  }, [audioRef]);
+
+    Howler.volume(newVolume);
+  }, []);
 
   return (
     <SpeakerContainer>

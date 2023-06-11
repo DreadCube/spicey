@@ -1,15 +1,17 @@
+import { Howler } from 'howler';
+
 let requestId = null;
 let context;
 let analyser;
 let src;
 
 const spectrum = {
-  start: ({ canvasRef, audioRef }) => {
+  start: ({ canvasRef, audio }) => {
     if (requestId) {
       spectrum.stop();
     }
     if (!context) {
-      context = new AudioContext();
+      context = Howler.ctx;
     }
 
     if (!analyser) {
@@ -17,10 +19,10 @@ const spectrum = {
     }
 
     if (!src) {
-      src = context.createMediaElementSource(audioRef.current);
+      src = context.createMediaElementSource(audio);
     }
 
-    if (!audioRef.current || !canvasRef.current) {
+    if (!audio || !canvasRef.current) {
       return;
     }
 
@@ -60,6 +62,7 @@ const spectrum = {
       x = 0;
 
       analyser.getByteFrequencyData(dataArray);
+      console.log(dataArray);
 
       postMessage(dataArray);
 
