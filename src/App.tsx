@@ -51,19 +51,19 @@ const Header = styled.div`
       }
     }
 
-    div:has(div):has(svg) {
-      position: absolute;
-      top: 0;
-      right: 0;
-      margin: 20px;
-    }
-
     > div:first-child > div > span:first-child {
       font-size: 40px;
     }
 
     > div:first-child > div > span:nth-child(2) {
       display: none;
+    }
+
+    > div:nth-child(3)  {
+      position: absolute;
+      top: 0;
+      right: 0;
+      margin: 20px;
     }
   }
 `;
