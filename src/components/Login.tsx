@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import audius from '../helpers/audius/index';
@@ -17,6 +18,8 @@ const LoginWrapper = styled.div`
 function Login() {
   const { user, setUser, logout } = useAuth();
 
+  const navigate = useNavigate();
+
   React.useEffect(() => {
     audius.loginInit(
       (res) => {
@@ -34,23 +37,23 @@ function Login() {
     if (user) {
       return [
         {
-          label: 'Liked Songs',
+          label: 'Your liked Songs',
           onClick: () => {
-            console.log('liked songs');
+            navigate('/favorites');
           },
         },
         {
-          label: 'Settiings',
+          label: 'Your artist page',
           onClick: () => {
-            console.log('settings');
+            navigate(`/artist/${user.id}`);
           },
         },
-        {
+        /* {
           label: 'Rewind 2023',
           onClick: () => {
             console.log('Rewind 2023');
           },
-        },
+        }, */
         {
           label: 'Logout',
           onClick: logout,
@@ -64,7 +67,7 @@ function Login() {
         onClick: handleLogin,
       },
     ];
-  }, [user, handleLogin, logout]);
+  }, [user, handleLogin, logout, navigate]);
 
   return (
     <LoginWrapper>

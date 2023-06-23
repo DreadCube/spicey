@@ -24,6 +24,19 @@ export default {
   },
 
   /**
+   * Gets favorites track of provided user
+   */
+  getFavoritesTracks: async (userId: string): Promise<Track[]> => {
+    const favorites = await audius.users.getFavorites({ id: userId });
+
+    const tracks = await audius.tracks.getBulkTracks({
+      id: favorites.data.map((fav) => fav.favoriteItemId),
+    });
+
+    return tracks.data;
+  },
+
+  /**
    * Get the url of the track's streamable mp3 file
    */
   streamTrack: async (trackId: string): Promise<string> => {
