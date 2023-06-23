@@ -1,11 +1,9 @@
-import { Icon } from '@iconify/react';
-import React, { useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 
 import audius from '../helpers/audius/index';
-import { UserProfile } from '../helpers/audius/types';
 import { useAuth } from '../providers/AuthProvider';
-import Tooltip from './Tooltip';
+import Menu from './Menu';
 
 const LoginWrapper = styled.div`
     display: flex;
@@ -17,7 +15,7 @@ const LoginWrapper = styled.div`
 `;
 
 function Login() {
-  const { user, setUser } = useAuth();
+  const { user, setUser, logout } = useAuth();
 
   React.useEffect(() => {
     audius.loginInit(
@@ -28,27 +26,51 @@ function Login() {
     );
   }, [setUser]);
 
-  const handleClick = () => {
+  const handleLogin = useCallback(() => {
     audius.login();
-  };
+  }, []);
+
+  const menuItems = useMemo(() => {
+    if (user) {
+      return [
+        {
+          label: 'Liked Songs',
+          onClick: () => {
+            console.log('liked songs');
+          },
+        },
+        {
+          label: 'Settiings',
+          onClick: () => {
+            console.log('settings');
+          },
+        },
+        {
+          label: 'Rewind 2023',
+          onClick: () => {
+            console.log('Rewind 2023');
+          },
+        },
+        {
+          label: 'Logout',
+          onClick: logout,
+        },
+      ];
+    }
+
+    return [
+      {
+        label: 'Login with Audius',
+        onClick: handleLogin,
+      },
+    ];
+  }, [user, handleLogin, logout]);
 
   return (
     <LoginWrapper>
-      {
-            user
-              ? (
-
-                <Tooltip title={`Logged in as: ${user.handle}`}>
-                  <Icon icon="mdi:user-outline" fontSize="30px" color="rgb(255,0,169)" />
-                </Tooltip>
-              )
-              : (
-                <Tooltip title="Login with Audius">
-                  <Icon icon="material-symbols:login" color="white" onClick={handleClick} fontSize="30px" />
-                </Tooltip>
-              )
-        }
+      <Menu items={menuItems} />
     </LoginWrapper>
   );
 }
+
 export default Login;
