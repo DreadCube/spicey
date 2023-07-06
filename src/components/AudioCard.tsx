@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 import { useNavigate } from 'react-router-dom';
 
+import { Icon } from '@iconify/react';
 import isVerifiedSvg from '../svgs/verified.svg';
 import { Track } from '../helpers/audius/types';
 
@@ -86,6 +87,16 @@ const CoverWrapper = styled.div`
 `;
 
 const PlayButton = styled.img`
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 50px;
+  height: 50px;
+  filter: invert(1);
+  opacity: 0.2;
+`;
+
+const PlayIcon = styled(Icon)`
   position: absolute;
   bottom: 8px;
   right: 8px;
@@ -192,7 +203,7 @@ function AudioCard({
           ? (
             <CoverWrapper onClick={handleClick}>
               <Cover src={artworkSrc} />
-              <PlayButton className="playButton" src="https://www.svgrepo.com/show/13672/play-button.svg" />
+              <PlayIcon icon="codicon:play-circle" className="playButton" />
             </CoverWrapper>
           )
           : (
