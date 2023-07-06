@@ -1,7 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 import { Handler } from '@netlify/functions';
 
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
 
 const generateHtml = (title: string, name: string, artworkUrl: string) => {
   const HTML = `
