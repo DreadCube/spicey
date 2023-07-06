@@ -56,6 +56,7 @@ export const handler: Handler = async (event, context) => {
       };
     }
   } catch (err) {
+    console.log(err);
     // Nothing todo
   }
 
