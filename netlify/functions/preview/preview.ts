@@ -3,7 +3,7 @@ import { Handler } from '@netlify/functions';
 
 import fetch from 'node-fetch';
 
-const generateHtml = (title: string, name: string, artworkUrl: string) => {
+const generateHtml = (title: string, name: string, artworkUrl: string, redirectUrl: string) => {
   const HTML = `
 <!DOCTYPE html>
 <html lang="en">
@@ -26,8 +26,10 @@ const generateHtml = (title: string, name: string, artworkUrl: string) => {
     <meta property="og:image" content="${artworkUrl}">
 
   </head>
-  <body>
-   <h1>Hallo Welt</h1>
+  <body style="background-color: black;">
+    <script>
+      window.location.href = "${redirectUrl}";
+    </script>
   </body>
 </html>
 `;
@@ -35,7 +37,7 @@ const generateHtml = (title: string, name: string, artworkUrl: string) => {
   return HTML;
 };
 
-export const handler: Handler = async (event, context) => {
+export const handler: Handler = async (event) => {
   try {
     const [, category] = event.path.split('preview/');
 
@@ -52,9 +54,11 @@ export const handler: Handler = async (event, context) => {
 
       const [artworkUrl] = Object.values<string>(artwork);
 
+      const redirectUrl = `https://spicey.app/${category}`;
+
       return {
         statusCode: 200,
-        body: generateHtml(title, name, artworkUrl),
+        body: generateHtml(title, name, artworkUrl, redirectUrl),
       };
     }
   } catch (err) {
